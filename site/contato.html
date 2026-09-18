@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contato — Daiji</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="oura-nav" id="ouraNav">
+  <div class="row-nav">
+    <a class="brand" href="index.html">DA<span class="bar">|</span>JI</a>
+    <div class="links">
+      <a href="index.html">Início</a>
+      <a href="planos.html">Planos</a>
+      <a href="especialidades.html">Especialidades</a>
+      <a href="seguranca.html">Segurança</a>
+      <a href="sobre.html">Sobre</a>
+      <a href="contato.html" class="active">Contato</a>
+    </div>
+    <div class="right">
+      <button class="icon-btn" data-theme-toggle aria-label="Alternar tema">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4 12H2M22 12h-2M5 5l1.5 1.5M18.5 18.5 20 20M18.5 5.5 20 4M4 20l1.5-1.5"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.5A9 9 0 1111.5 3 7 7 0 0021 12.5z"/></svg>
+      </button>
+      <a class="btn-explore" style="padding:9px 20px; font-size:13px;" href="planos.html">Baixar</a>
+    </div>
+  </div>
+</nav>
+
+<header class="page-head">
+  <span class="eyebrow" style="justify-content:center; display:flex;">Fale com a gente</span>
+  <h1>Como podemos ajudar?</h1>
+  <p>Fale com o assistente da Daiji agora mesmo, ou envie uma mensagem para o nosso time.</p>
+</header>
+
+<main>
+  <!-- CHATBOT — SEÇÃO DE DESTAQUE -->
+  <section class="sec" id="assistente">
+    <div class="container-ap">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:50px; align-items:center;">
+
+        <div class="fx-in">
+          <span class="eyebrow">Assistente virtual</span>
+          <h2 style="font-size:clamp(28px,3.4vw,40px); margin-bottom:16px;">Respostas rápidas, na hora que você precisar.</h2>
+          <p style="color:var(--muted); line-height:1.65; font-size:15.5px; margin-bottom:24px;">O assistente da Daiji tira dúvidas sobre planos, especialidades e agendamento em segundos. Este painel é o <strong>espaço reservado do chatbot</strong> — conecte aqui o backend (WhatsApp Business API, um LLM próprio, Dialogflow, etc.) para respostas de verdade.</p>
+          <button class="btn-explore" id="openChatInline">Abrir assistente</button>
+        </div>
+
+        <!-- versão "inline" do widget, fixa na página (não flutuante) -->
+        <div class="fx-in">
+          <div style="background:var(--panel); border:1px solid var(--border); border-radius:22px; overflow:hidden; box-shadow:0 30px 70px var(--shadow);">
+            <div class="chat-head" style="border-bottom:1px solid var(--border);">
+              <div class="av"></div>
+              <div class="t"><b>Assistente Daiji</b><span>Online</span></div>
+            </div>
+            <div class="chat-body" id="chatBodyInline" style="height:280px;">
+              <div class="chat-bubble bot">Olá! 👋 Sou o assistente da Daiji. Pergunte sobre planos, especialidades ou como funciona o Risk Score.</div>
+              <div class="chat-bubble user">Como funciona o Risk Score?</div>
+              <div class="chat-bubble bot">Ele cruza sua rotina, sono e exames para estimar o risco de saúde antes que vire um problema. (Resposta de exemplo — conecte seu backend real aqui.)</div>
+            </div>
+            <div class="chat-placeholder-note">Espaço reservado — integre seu chatbot em js/main.js</div>
+            <form class="chat-input" id="chatFormInline">
+              <input id="chatInputInline" type="text" placeholder="Digite sua mensagem…" autocomplete="off">
+              <button type="submit" aria-label="Enviar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="sec sec-alt">
+    <div class="container-ap">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:50px;">
+        <div class="fx-in">
+          <span class="eyebrow">Fale com o time</span>
+          <h2 style="font-size:clamp(26px,3vw,36px); margin-bottom:16px;">Envie uma mensagem</h2>
+          <p style="color:var(--muted); line-height:1.6; font-size:15px; margin-bottom:26px;">Prefere falar direto com alguém? Preencha o formulário e nosso time responde por e-mail.</p>
+          <div style="display:flex; flex-wrap:wrap;">
+            <span class="trust-badge"><span class="d"></span>suporte@daiji.health</span>
+            <span class="trust-badge"><span class="d"></span>Resposta em até 1 dia útil</span>
+          </div>
+        </div>
+        <form class="fx-in" onsubmit="return false;">
+          <div class="form-field">
+            <label>Nome</label>
+            <input type="text" placeholder="Seu nome completo">
+          </div>
+          <div class="form-field">
+            <label>E-mail</label>
+            <input type="email" placeholder="voce@email.com">
+          </div>
+          <div class="form-field">
+            <label>Assunto</label>
+            <select>
+              <option>Dúvida sobre planos</option>
+              <option>Suporte técnico</option>
+              <option>Parcerias</option>
+              <option>Imprensa</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>Mensagem</label>
+            <textarea placeholder="Como podemos ajudar?"></textarea>
+          </div>
+          <button type="submit" class="btn-explore" style="width:100%;">Enviar mensagem</button>
+        </form>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="oura-footer">
+  <div class="container-ap">
+    <div class="newsletter">
+      <div><h4>Receba novidades da Daiji</h4><p>Artigos, dicas e novidades sobre saúde preditiva direto no seu e-mail.</p></div>
+      <form onsubmit="return false;">
+        <input type="email" placeholder="Seu e-mail">
+        <button type="submit">Inscrever</button>
+      </form>
+    </div>
+    <div class="foot-cols">
+      <div>
+        <h6>Daiji</h6>
+        <p style="font-size:13.5px; color:var(--muted); line-height:1.6; max-width:260px;">Plataforma de saúde preditiva que conecta rotina, exames e especialistas antes que o risco vire problema.</p>
+      </div>
+      <div>
+        <h6>Produto</h6>
+        <ul>
+          <li><a href="planos.html">Planos</a></li>
+          <li><a href="especialidades.html">Especialidades</a></li>
+          <li><a href="index.html#forma-funcao">Como funciona</a></li>
+        </ul>
+      </div>
+      <div>
+        <h6>Empresa</h6>
+        <ul>
+          <li><a href="sobre.html">Sobre a Daiji</a></li>
+          <li><a href="seguranca.html">Segurança &amp; LGPD</a></li>
+          <li><a href="contato.html">Contato</a></li>
+        </ul>
+      </div>
+      <div>
+        <h6>Legal</h6>
+        <ul>
+          <li><a href="seguranca.html">Privacidade</a></li>
+          <li><a href="#">Termos de uso</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 Daiji Health. Projeto FIAP Challenge em parceria com Unimed Nacional.</span>
+      <span><a href="seguranca.html">Privacidade</a><a href="#">Termos</a><a href="contato.html">Contato</a></span>
+    </div>
+  </div>
+</footer>
+
+<!-- floating widget also present on this page for consistency -->
+<button class="chat-fab" id="chatFab" aria-label="Abrir assistente Daiji">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h16v11H9l-4 4V16H4z"/></svg>
+  <span class="dot-badge"></span>
+</button>
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-head">
+    <div class="av"></div>
+    <div class="t"><b>Assistente Daiji</b><span>Online</span></div>
+    <button class="chat-close" id="chatClose" aria-label="Fechar">✕</button>
+  </div>
+  <div class="chat-body" id="chatBody">
+    <div class="chat-bubble bot">Olá! 👋 Estou aqui se preferir conversar por aqui em vez do formulário.</div>
+  </div>
+  <div class="chat-placeholder-note">Espaço reservado — integre seu chatbot em js/main.js</div>
+  <form class="chat-input" id="chatForm">
+    <input id="chatInput" type="text" placeholder="Digite sua mensagem…" autocomplete="off">
+    <button type="submit" aria-label="Enviar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+  </form>
+</div>
+
+<script src="js/main.js"></script>
+<script>
+  // wire the inline chat form on this page + "Abrir assistente" button to open the floating panel
+  document.getElementById('openChatInline').addEventListener('click', () => {
+    document.getElementById('chatPanel').classList.add('open');
+  });
+  document.getElementById('chatFormInline').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const input = document.getElementById('chatInputInline');
+    const text = input.value.trim();
+    if (!text) return;
+    const body = document.getElementById('chatBodyInline');
+    const bubble = document.createElement('div');
+    bubble.className = 'chat-bubble user';
+    bubble.textContent = text;
+    body.appendChild(bubble);
+    input.value = '';
+    body.scrollTop = body.scrollHeight;
+    setTimeout(() => {
+      const reply = document.createElement('div');
+      reply.className = 'chat-bubble bot';
+      reply.textContent = 'Espaço reservado — conecte este formulário ao seu backend de chatbot em js/main.js.';
+      body.appendChild(reply);
+      body.scrollTop = body.scrollHeight;
+    }, 500);
+  });
+</script>
+</body>
+</html>
