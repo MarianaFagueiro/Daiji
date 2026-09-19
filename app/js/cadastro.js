@@ -11,7 +11,7 @@ let cadastroConcluido = false
 async function carregarEmpresas() {
     botaoCadastro.disabled = true
     try {
-        const resposta = await fetch('http://localhost:8080/api/empresas')
+        const resposta = await DaijiHttp.request('http://localhost:8080/api/empresas')
         if (!resposta.ok) throw new Error('Falha ao carregar empresas')
         const empresas = await resposta.json()
         if (!Array.isArray(empresas)) throw new Error('Resposta inválida')
@@ -36,9 +36,11 @@ async function carregarEmpresas() {
         empresa.disabled = false
         empresasCarregadas = true
         botaoCadastro.disabled = false
-    } catch {
+    } catch (erro) {
         empresa.options[0].textContent = 'Empresas indisponíveis'
-        mensagem.textContent = 'Não foi possível carregar as empresas. Verifique a conexão e recarregue a página.'
+        mensagem.textContent = DaijiHttp.isTimeout(erro)
+            ? 'O servidor demorou para carregar as empresas. Recarregue a página para tentar novamente.'
+            : 'Não foi possível carregar as empresas. Verifique a conexão e recarregue a página.'
     }
 }
 
@@ -94,13 +96,15 @@ formulario.addEventListener('submit', async function (event) {
     try {
         let resposta
         try {
-            resposta = await fetch('http://localhost:8080/api/auth/cadastro', {
+            resposta = await DaijiHttp.request('http://localhost:8080/api/auth/cadastro', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(dados)
             })
-        } catch {
-            mensagem.textContent = 'Não foi possível conectar ao serviço. Tente novamente.'
+        } catch (erro) {
+            mensagem.textContent = DaijiHttp.isTimeout(erro)
+                ? 'Não foi possível confirmar o cadastro a tempo. Ele pode ter sido registrado. Tente entrar antes de cadastrar novamente.'
+                : 'Não foi possível conectar ao serviço. Tente novamente.'
             return
         }
         if (!resposta.ok) {

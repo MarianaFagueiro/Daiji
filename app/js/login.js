@@ -49,13 +49,15 @@ formularioLogin.addEventListener('submit', async function (event) {
         let resposta
 
         try {
-            resposta = await fetch('http://localhost:8080/api/auth/login', {
+            resposta = await DaijiHttp.request('http://localhost:8080/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, senha })
             })
-        } catch {
-            mostrarMensagemLogin('Não foi possível conectar ao servidor. Tente novamente.')
+        } catch (erro) {
+            mostrarMensagemLogin(DaijiHttp.isTimeout(erro)
+                ? 'O servidor demorou para responder. Tente entrar novamente.'
+                : 'Não foi possível conectar ao servidor. Tente novamente.')
             return
         }
 

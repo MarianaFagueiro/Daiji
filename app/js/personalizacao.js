@@ -1,3 +1,5 @@
+(function () {
+    if (!DaijiSession.validar()) return
 const formularioPersonalizacao =
     document.querySelector('#personalizacaoForm')
 
@@ -19,3 +21,4 @@ formularioPersonalizacao.addEventListener('submit', function (event) {
     window.location.href = 'score.html'
 
 })
+})()

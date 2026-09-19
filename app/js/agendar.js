@@ -1,4 +1,5 @@
 (function () {
+    if (!DaijiSession.validar()) return
 
     /* =====================================================
        CONFIGURAÇÕES

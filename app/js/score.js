@@ -1,4 +1,5 @@
 (function () {
+    if (!DaijiSession.validar()) return
 
     /* =====================================================
        CONFIGURAÇÕES
@@ -222,9 +223,11 @@
 
         let resposta
         try {
-            resposta = await fetch(`http://localhost:8080/api/beneficiarios/${idBeneficiario}/score`)
-        } catch {
-            mostrarEstado('Score indisponível', 'Não foi possível conectar ao serviço. Tente novamente mais tarde.')
+            resposta = await DaijiHttp.request(`http://localhost:8080/api/beneficiarios/${idBeneficiario}/score`)
+        } catch (erro) {
+            mostrarEstado('Score indisponível', DaijiHttp.isTimeout(erro)
+                ? 'O servidor demorou para responder. Recarregue a página para tentar novamente.'
+                : 'Não foi possível conectar ao serviço. Tente novamente mais tarde.')
             return false
         }
 
@@ -650,6 +653,7 @@
     }
 
     function validarContextoBeneficiario() {
+        if (!DaijiSession.validar()) return false
         const idAtual = obterBeneficiarioCheckin()
         if (!contextoBeneficiarioInvalidado && idBeneficiarioPagina !== null &&
             idAtual === idBeneficiarioPagina) return true
@@ -708,13 +712,15 @@
         try {
             let resposta
             try {
-                resposta = await fetch(`http://localhost:8080/api/beneficiarios/${idBeneficiario}/checkins`, {
+                resposta = await DaijiHttp.request(`http://localhost:8080/api/beneficiarios/${idBeneficiario}/checkins`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(dados)
-                })
-            } catch {
-                mensagemCheckin.textContent = 'Serviço indisponível. Verifique a conexão e tente novamente.'
+                }, false)
+            } catch (erro) {
+                mensagemCheckin.textContent = DaijiHttp.isTimeout(erro)
+                    ? 'Não foi possível confirmar o check-in a tempo. Ele pode ter sido registrado; uma nova tentativa pode duplicá-lo.'
+                    : 'Serviço indisponível. Verifique a conexão e tente novamente.'
                 return
             }
 
@@ -736,9 +742,9 @@
 
             try {
                 if (!validarContextoBeneficiario()) throw new Error('Contexto de beneficiário alterado')
-                const recalculo = await fetch(`http://localhost:8080/api/beneficiarios/${idBeneficiario}/score/recalcular`, {
+                const recalculo = await DaijiHttp.request(`http://localhost:8080/api/beneficiarios/${idBeneficiario}/score/recalcular`, {
                     method: 'POST'
-                })
+                }, false)
                 if (!recalculo.ok) throw new Error('Falha no recálculo')
 
                 // Aguarda a consulta inicial para que ela não sobrescreva o novo score.

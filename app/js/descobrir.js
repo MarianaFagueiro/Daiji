@@ -1,3 +1,5 @@
+(function () {
+    if (!DaijiSession.validar()) return
 const categorias = document.querySelectorAll('.category-item')
 
 categorias.forEach(categoria => {
@@ -19,3 +21,4 @@ categorias.forEach(categoria => {
     })
 
 })
+})()
