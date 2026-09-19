@@ -13,6 +13,7 @@
 
 
     let checkinEmAndamento = false
+    let contextoBeneficiarioInvalidado = false
 
     const answers = {
 
@@ -217,6 +218,7 @@
         }
 
         if (beneficiarioEsperado !== null && idBeneficiario !== beneficiarioEsperado) return false
+        if (!validarContextoBeneficiario()) return false
 
         let resposta
         try {
@@ -250,6 +252,8 @@
                 typeof dados.dataCalculo !== 'string' || Number.isNaN(data.getTime())) {
                 throw new Error('Resposta de score inválida')
             }
+
+            if (!validarContextoBeneficiario()) return false
 
             valor.textContent = dados.valorScore.toLocaleString('pt-BR')
             classificacao.textContent = riscos[dados.classificacaoRisco]
@@ -378,7 +382,7 @@
 
 
         submit.disabled =
-            checkinEmAndamento || actionCard.classList.contains('done') ||
+            contextoBeneficiarioInvalidado || checkinEmAndamento || actionCard.classList.contains('done') ||
             completed < required.length
 
     }
@@ -541,6 +545,8 @@
 
     function openModal() {
 
+        if (!validarContextoBeneficiario()) return
+
         modal.hidden =
             false
 
@@ -643,7 +649,29 @@
             String(agora.getDate()).padStart(2, '0')
     }
 
+    function validarContextoBeneficiario() {
+        const idAtual = obterBeneficiarioCheckin()
+        if (!contextoBeneficiarioInvalidado && idBeneficiarioPagina !== null &&
+            idAtual === idBeneficiarioPagina) return true
+
+        contextoBeneficiarioInvalidado = true
+        const aviso = 'A sessão foi alterada ou está indisponível. Atualize ou reabra a página para continuar.'
+        mensagemCheckin.textContent = aviso
+        actionSub.textContent = aviso
+        actionCard.disabled = true
+        updateProgress()
+        return false
+    }
+
+    window.addEventListener('storage', event => {
+        if (event.storageArea === localStorage &&
+            (event.key === 'idBeneficiario' || event.key === null)) {
+            validarContextoBeneficiario()
+        }
+    })
+
     submit.addEventListener('click', async () => {
+        if (!validarContextoBeneficiario()) return
         if (checkinEmAndamento || actionCard.classList.contains('done')) return
 
         const nivelEstresse = Number(answers.estresse)
@@ -661,11 +689,8 @@
             return
         }
 
-        const idBeneficiario = obterBeneficiarioCheckin()
-        if (!idBeneficiario) {
-            mensagemCheckin.textContent = 'Faça login com uma conta de beneficiário para registrar seu check-in.'
-            return
-        }
+        // O destino permanece vinculado à página, nunca a um novo usuário no storage.
+        const idBeneficiario = idBeneficiarioPagina
 
         const dados = {
             nivelEstresse,
@@ -710,6 +735,7 @@
             botaoVoltarScore.disabled = true
 
             try {
+                if (!validarContextoBeneficiario()) throw new Error('Contexto de beneficiário alterado')
                 const recalculo = await fetch(`http://localhost:8080/api/beneficiarios/${idBeneficiario}/score/recalcular`, {
                     method: 'POST'
                 })
@@ -808,7 +834,7 @@
     }
 
     function restoreState() {
-        const idBeneficiario = obterBeneficiarioCheckin()
+        const idBeneficiario = idBeneficiarioPagina
         if (!idBeneficiario) return
 
         try {
@@ -895,6 +921,9 @@
     /* =====================================================
        INICIALIZAÇÃO
     ====================================================== */
+
+    // Imutável durante a vida desta página, inclusive quando ainda não há score.
+    const idBeneficiarioPagina = obterBeneficiarioCheckin()
 
     updateDate()
 
