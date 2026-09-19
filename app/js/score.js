@@ -122,7 +122,7 @@
        SCORE
     ====================================================== */
 
-    function animateScore() {
+    function animateScore(score) {
 
         const arc =
             document.getElementById(
@@ -147,16 +147,14 @@
             radius
 
 
-        const score =
-            74
-
-
         arc.style.strokeDasharray =
             circumference
 
 
         arc.style.strokeDashoffset =
             circumference
+
+        arc.style.visibility = 'visible'
 
 
         requestAnimationFrame(
@@ -179,6 +177,85 @@
             }
         )
 
+    }
+
+
+    async function carregarScore() {
+        const valor = document.getElementById('scoreValue')
+        const classificacao = document.querySelector('.score-content h2')
+        const atualizacao = document.getElementById('scoreUpdate')
+        const arc = document.getElementById('scoreArc')
+
+        function mostrarEstado(titulo, mensagem) {
+            valor.textContent = '—'
+            arc.style.visibility = 'hidden'
+            classificacao.textContent = titulo
+            atualizacao.textContent = mensagem
+        }
+
+        mostrarEstado('Carregando score...', 'Consultando seu score.')
+
+        let idSalvo
+        try {
+            idSalvo = sessionStorage.getItem('idBeneficiario')
+            if (idSalvo === null) {
+                idSalvo = localStorage.getItem('idBeneficiario')
+            }
+        } catch {
+            mostrarEstado('Sessão indisponível', 'Não foi possível acessar sua sessão. Faça login novamente.')
+            return
+        }
+
+        const idBeneficiario = Number(idSalvo)
+        if (!idSalvo || !/^\d+$/.test(idSalvo) ||
+            !Number.isSafeInteger(idBeneficiario) || idBeneficiario <= 0) {
+            mostrarEstado('Identificação necessária', 'Faça login com uma conta de beneficiário para consultar seu score.')
+            return
+        }
+
+        let resposta
+        try {
+            resposta = await fetch(`http://localhost:8080/api/beneficiarios/${idBeneficiario}/score`)
+        } catch {
+            mostrarEstado('Score indisponível', 'Não foi possível conectar ao serviço. Tente novamente mais tarde.')
+            return
+        }
+
+        if (resposta.status === 404) {
+            mostrarEstado('Score ainda não calculado', 'Seu score estará disponível após o primeiro cálculo.')
+            return
+        }
+        if (resposta.status === 400) {
+            mostrarEstado('Identificação inválida', 'Não foi possível identificar o beneficiário. Faça login novamente.')
+            return
+        }
+        if (resposta.status !== 200) {
+            mostrarEstado('Score indisponível', 'Não foi possível consultar seu score. Tente novamente mais tarde.')
+            return
+        }
+
+        try {
+            const dados = await resposta.json()
+            const riscos = { BAIXO: 'Risco Baixo', MEDIO: 'Risco Moderado', ALTO: 'Risco Alto' }
+            const data = new Date(dados?.dataCalculo)
+            if (!dados || dados.idBeneficiario !== idBeneficiario ||
+                typeof dados.valorScore !== 'number' || !Number.isFinite(dados.valorScore) ||
+                dados.valorScore < 0 || dados.valorScore > 100 ||
+                !Object.prototype.hasOwnProperty.call(riscos, dados.classificacaoRisco) ||
+                typeof dados.dataCalculo !== 'string' || Number.isNaN(data.getTime())) {
+                throw new Error('Resposta de score inválida')
+            }
+
+            valor.textContent = dados.valorScore.toLocaleString('pt-BR')
+            classificacao.textContent = riscos[dados.classificacaoRisco]
+            atualizacao.textContent = 'Atualizado em ' + data.toLocaleString('pt-BR', {
+                day: '2-digit', month: '2-digit', year: 'numeric',
+                hour: '2-digit', minute: '2-digit'
+            })
+            animateScore(dados.valorScore)
+        } catch {
+            mostrarEstado('Score indisponível', 'Não foi possível carregar seu score. Tente novamente mais tarde.')
+        }
     }
 
 
@@ -789,7 +866,7 @@
 
     updateDate()
 
-    animateScore()
+    carregarScore()
 
     restoreState()
 
