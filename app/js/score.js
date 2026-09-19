@@ -182,13 +182,14 @@
     }
 
 
-    async function carregarScore() {
+    async function carregarScore(preservarAtual = false, beneficiarioEsperado = null) {
         const valor = document.getElementById('scoreValue')
         const classificacao = document.querySelector('.score-content h2')
         const atualizacao = document.getElementById('scoreUpdate')
         const arc = document.getElementById('scoreArc')
 
         function mostrarEstado(titulo, mensagem) {
+            if (preservarAtual) return
             valor.textContent = '—'
             arc.style.visibility = 'hidden'
             classificacao.textContent = titulo
@@ -205,35 +206,37 @@
             }
         } catch {
             mostrarEstado('Sessão indisponível', 'Não foi possível acessar sua sessão. Faça login novamente.')
-            return
+            return false
         }
 
         const idBeneficiario = Number(idSalvo)
         if (!idSalvo || !/^\d+$/.test(idSalvo) ||
             !Number.isSafeInteger(idBeneficiario) || idBeneficiario <= 0) {
             mostrarEstado('Identificação necessária', 'Faça login com uma conta de beneficiário para consultar seu score.')
-            return
+            return false
         }
+
+        if (beneficiarioEsperado !== null && idBeneficiario !== beneficiarioEsperado) return false
 
         let resposta
         try {
             resposta = await fetch(`http://localhost:8080/api/beneficiarios/${idBeneficiario}/score`)
         } catch {
             mostrarEstado('Score indisponível', 'Não foi possível conectar ao serviço. Tente novamente mais tarde.')
-            return
+            return false
         }
 
         if (resposta.status === 404) {
             mostrarEstado('Score ainda não calculado', 'Seu score estará disponível após o primeiro cálculo.')
-            return
+            return false
         }
         if (resposta.status === 400) {
             mostrarEstado('Identificação inválida', 'Não foi possível identificar o beneficiário. Faça login novamente.')
-            return
+            return false
         }
         if (resposta.status !== 200) {
             mostrarEstado('Score indisponível', 'Não foi possível consultar seu score. Tente novamente mais tarde.')
-            return
+            return false
         }
 
         try {
@@ -255,8 +258,10 @@
                 hour: '2-digit', minute: '2-digit'
             })
             animateScore(dados.valorScore)
+            return true
         } catch {
             mostrarEstado('Score indisponível', 'Não foi possível carregar seu score. Tente novamente mais tarde.')
+            return false
         }
     }
 
@@ -611,6 +616,11 @@
        CONCLUI CHECK-IN
     ====================================================== */
 
+    let mensagemConclusao = 'Check-in concluído · +50 pts'
+    const mensagemSucesso = document.querySelector('#ciSuccess p')
+    mensagemSucesso.setAttribute('role', 'status')
+    mensagemSucesso.setAttribute('aria-live', 'polite')
+    const botaoVoltarScore = document.getElementById('ciDone')
     const mensagemCheckin = document.querySelector('.checkin-top p')
     mensagemCheckin.setAttribute('role', 'status')
     mensagemCheckin.setAttribute('aria-live', 'polite')
@@ -696,7 +706,29 @@
             success.hidden = false
             markDone()
             saveState(idBeneficiario, data)
-            showToast('Check-in concluído · +50 pts')
+            mensagemSucesso.textContent = 'Check-in registrado. Atualizando seu score...'
+            botaoVoltarScore.disabled = true
+
+            try {
+                const recalculo = await fetch(`http://localhost:8080/api/beneficiarios/${idBeneficiario}/score/recalcular`, {
+                    method: 'POST'
+                })
+                if (!recalculo.ok) throw new Error('Falha no recálculo')
+
+                // Aguarda a consulta inicial para que ela não sobrescreva o novo score.
+                await consultaInicialScore
+                const atualizado = await carregarScore(true, idBeneficiario)
+                if (!atualizado) throw new Error('Falha ao atualizar score')
+
+                mensagemConclusao = 'Check-in registrado e score atualizado · +50 pts'
+                mensagemSucesso.textContent = 'Seu check-in foi registrado e seu score foi atualizado.'
+            } catch {
+                mensagemConclusao = 'Check-in registrado, mas não foi possível atualizar o score neste momento.'
+                mensagemSucesso.textContent = mensagemConclusao
+            } finally {
+                botaoVoltarScore.disabled = false
+            }
+            showToast(mensagemConclusao)
         } finally {
             checkinEmAndamento = false
             submit.removeAttribute('aria-busy')
@@ -810,11 +842,9 @@
             'click',
             () => {
 
+                if (checkinEmAndamento) return
                 closeModal()
-
-                showToast(
-                    'Check-in concluído · +50 pts'
-                )
+                showToast(mensagemConclusao)
 
             }
         )
@@ -868,7 +898,7 @@
 
     updateDate()
 
-    carregarScore()
+    const consultaInicialScore = carregarScore()
 
     restoreState()
 
