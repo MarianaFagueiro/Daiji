@@ -576,6 +576,18 @@ body {
 }
 
 
+select.glass-input option {
+    background: var(--bg-deep);
+    color: var(--text-soft);
+}
+
+.cadastro-message:not(:empty) {
+    margin-top: 1rem;
+    color: var(--text-soft);
+    font-size: 0.82rem;
+    line-height: 1.5;
+}
+
 .glass-input::placeholder {
 
     color:
