@@ -12,6 +12,8 @@
         1250
 
 
+    let checkinEmAndamento = false
+
     const answers = {
 
         sono: null,
@@ -371,8 +373,8 @@
 
 
         submit.disabled =
-            completed <
-            required.length
+            checkinEmAndamento || actionCard.classList.contains('done') ||
+            completed < required.length
 
     }
 
@@ -551,6 +553,8 @@
 
     function closeModal() {
 
+        if (checkinEmAndamento) return
+
         modal.hidden =
             true
 
@@ -607,30 +611,98 @@
        CONCLUI CHECK-IN
     ====================================================== */
 
-    submit.addEventListener(
-        'click',
-        () => {
+    const mensagemCheckin = document.querySelector('.checkin-top p')
+    mensagemCheckin.setAttribute('role', 'status')
+    mensagemCheckin.setAttribute('aria-live', 'polite')
 
-            if (
-                submit.disabled
-            ) {
+    function obterBeneficiarioCheckin() {
+        try {
+            let idSalvo = sessionStorage.getItem('idBeneficiario')
+            if (idSalvo === null) idSalvo = localStorage.getItem('idBeneficiario')
+            const id = Number(idSalvo)
+            return idSalvo && /^\d+$/.test(idSalvo) && Number.isSafeInteger(id) && id > 0 ? id : null
+        } catch {
+            return null
+        }
+    }
 
+    function dataLocalCheckin() {
+        const agora = new Date()
+        return agora.getFullYear() + '-' +
+            String(agora.getMonth() + 1).padStart(2, '0') + '-' +
+            String(agora.getDate()).padStart(2, '0')
+    }
+
+    submit.addEventListener('click', async () => {
+        if (checkinEmAndamento || actionCard.classList.contains('done')) return
+
+        const nivelEstresse = Number(answers.estresse)
+        const respostaTexto = [
+            answers.hora ? 'Horário de dormir: ' + answers.hora : null,
+            answers.remedio ? 'Medicação: ' + answers.remedio : null
+        ].filter(Boolean).join(' | ')
+        const encoder = new TextEncoder()
+        if (!required.every(key => answers[key]) ||
+            !Number.isInteger(nivelEstresse) || nivelEstresse < 1 || nivelEstresse > 5 ||
+            encoder.encode(answers.sono).length > 20 ||
+            encoder.encode(answers.dieta).length > 30 ||
+            encoder.encode(respostaTexto).length > 500) {
+            mensagemCheckin.textContent = 'Responda todas as perguntas obrigatórias com valores válidos.'
+            return
+        }
+
+        const idBeneficiario = obterBeneficiarioCheckin()
+        if (!idBeneficiario) {
+            mensagemCheckin.textContent = 'Faça login com uma conta de beneficiário para registrar seu check-in.'
+            return
+        }
+
+        const dados = {
+            nivelEstresse,
+            qualidadeSono: answers.sono,
+            qualidadeAlimentacao: answers.dieta,
+            humor: null,
+            respostaTexto: respostaTexto || null
+        }
+        const data = dataLocalCheckin()
+        checkinEmAndamento = true
+        updateProgress()
+        mensagemCheckin.textContent = 'Enviando seu check-in...'
+        submit.setAttribute('aria-busy', 'true')
+
+        try {
+            let resposta
+            try {
+                resposta = await fetch(`http://localhost:8080/api/beneficiarios/${idBeneficiario}/checkins`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dados)
+                })
+            } catch {
+                mensagemCheckin.textContent = 'Serviço indisponível. Verifique a conexão e tente novamente.'
                 return
-
             }
 
+            if (resposta.status !== 201) {
+                mensagemCheckin.textContent = resposta.status === 400
+                    ? 'Dados inválidos. Confira suas respostas e tente novamente.'
+                    : resposta.status === 404
+                        ? 'Beneficiário não encontrado. Faça login novamente.'
+                        : 'Não foi possível registrar o check-in. Tente novamente mais tarde.'
+                return
+            }
 
-            flow.hidden =
-                true
-
-            success.hidden =
-                false
-
-
+            flow.hidden = true
+            success.hidden = false
             markDone()
-
+            saveState(idBeneficiario, data)
+            showToast('Check-in concluído · +50 pts')
+        } finally {
+            checkinEmAndamento = false
+            submit.removeAttribute('aria-busy')
+            updateProgress()
         }
-    )
+    })
 
 
     function markDone() {
@@ -682,7 +754,6 @@
             )
 
 
-        saveState()
 
     }
 
@@ -691,108 +762,39 @@
        LOCAL STORAGE
     ====================================================== */
 
-    function saveState() {
-
+    function saveState(idBeneficiario, data) {
         try {
-
-            localStorage.setItem(
-
-                STORE_KEY,
-
-                JSON.stringify({
-
-                    done:
-                        true,
-
-                    answers:
-                        answers,
-
-                    points:
-                        points
-
-                })
-
-            )
-
+            // Apenas cache visual de um POST confirmado; não é histórico oficial.
+            localStorage.setItem(STORE_KEY + ':' + idBeneficiario, JSON.stringify({
+                idBeneficiario,
+                data,
+                done: true
+            }))
+        } catch {
+            // Falha no cache não desfaz o check-in confirmado pelo servidor.
         }
-
-        catch (error) {
-
-            console.log(
-                'Não foi possível salvar o check-in'
-            )
-
-        }
-
     }
 
-
     function restoreState() {
+        const idBeneficiario = obterBeneficiarioCheckin()
+        if (!idBeneficiario) return
 
         try {
+            // A chave antiga, sem identificação e data, não é consultada.
+            const saved = JSON.parse(localStorage.getItem(STORE_KEY + ':' + idBeneficiario) || 'null')
+            if (!saved || saved.done !== true || saved.idBeneficiario !== idBeneficiario ||
+                saved.data !== dataLocalCheckin()) return
 
-            const saved =
-                JSON.parse(
-                    localStorage.getItem(
-                        STORE_KEY
-                    ) ||
-                    'null'
-                )
-
-
-            if (
-                saved &&
-                saved.done
-            ) {
-
-                points =
-                    saved.points ||
-                    1300
-
-
-                ptsNum.textContent =
-                    formatPoints(
-                        points
-                    )
-
-
-                actionCard
-                    .classList
-                    .add(
-                        'done'
-                    )
-
-
-                actionTitle.textContent =
-                    'Check-in concluído'
-
-
-                actionSub.textContent =
-                    'Muito bem! Volte amanhã · +50 pts ganhos'
-
-
-                actionIc.innerHTML =
-                    '<i class="bi bi-check-lg"></i>'
-
-
-                today
-                    .classList
-                    .add(
-                        'checked'
-                    )
-
-            }
-
+            points = 1300 // Pontos demonstrativos, sem persistência oficial.
+            ptsNum.textContent = formatPoints(points)
+            actionCard.classList.add('done')
+            actionTitle.textContent = 'Check-in concluído'
+            actionSub.textContent = 'Muito bem! Volte amanhã · +50 pts ganhos'
+            actionIc.innerHTML = '<i class="bi bi-check-lg"></i>'
+            today.classList.add('checked')
+        } catch {
+            // Cache ausente ou inválido não comprova conclusão.
         }
-
-        catch (error) {
-
-            console.log(
-                'Não foi possível restaurar o check-in'
-            )
-
-        }
-
     }
 
 
