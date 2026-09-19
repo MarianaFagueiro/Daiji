@@ -35,6 +35,14 @@ formulario.addEventListener('submit', function (event) {
     confirmarSenha.setCustomValidity('')
 
 
+    // quem acaba de se cadastrar já entra logado na Daiji
+    try {
+        localStorage.setItem('daijiLogado', 'true')
+    } catch (erro) {
+        // ambiente sem localStorage — segue mesmo assim
+    }
+
+
     window.location.href = 'personalizacao.html'
 
 })
