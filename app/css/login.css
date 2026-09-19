@@ -8,11 +8,7 @@
    FONT
 ========================================================= */
 
-@font-face {
-    font-family: "CoverWord";
-    src: url("../fonts/cover-word.woff2") format("woff2");
-    font-display: swap;
-}
+/* A fonte local não está disponível; mantém as fontes alternativas existentes. */
 
 
 

@@ -2,21 +2,7 @@
    FONTE DO LOGO
 ===================================================== */
 
-@font-face {
-
-    font-family: 'cover-word';
-
-    src:
-        url('../assets/fonts/cover-word.woff2')
-        format('woff2');
-
-    font-weight: normal;
-
-    font-style: normal;
-
-    font-display: swap;
-
-}
+/* A fonte local não está disponível; mantém as fontes alternativas existentes. */
 
 
 /* =====================================================
