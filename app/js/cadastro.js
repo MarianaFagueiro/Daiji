@@ -53,3 +53,33 @@ confirmarSenha.addEventListener('input', function () {
     confirmarSenha.setCustomValidity('')
 
 })
+
+// ---------- Mostrar / ocultar senha (botões com data-toggle) ----------
+document.querySelectorAll('.toggle-password[data-toggle]').forEach(function (botao) {
+
+    botao.addEventListener('click', function () {
+
+        const campo =
+            document.getElementById(botao.getAttribute('data-toggle'))
+
+        if (!campo) return
+
+        const visivel = campo.type === 'text'
+
+        campo.type = visivel ? 'password' : 'text'
+
+        botao.setAttribute(
+            'aria-label',
+            visivel ? 'Mostrar senha' : 'Ocultar senha'
+        )
+
+        const icone = botao.querySelector('i')
+
+        if (icone) {
+            icone.classList.toggle('bi-eye', visivel)
+            icone.classList.toggle('bi-eye-slash', !visivel)
+        }
+
+    })
+
+})

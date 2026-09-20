@@ -1,139 +1,71 @@
-document.addEventListener("DOMContentLoaded", () => {
+const formularioLogin = document.querySelector('#loginForm')
 
-    /* ------------------------------------------------------------------ */
-    /* 1) Personalização da página pela especialidade vinda na URL         */
-    /* ------------------------------------------------------------------ */
-
-    const parametros = new URLSearchParams(window.location.search)
-
-    const codigoEspecialidade =
-        parametros.get("especialidade")
+const mensagemLogin = document.querySelector('#loginMessage')
 
 
-    const especialidades = {
+formularioLogin.addEventListener('submit', function (event) {
 
-        "clinica-geral": {
-            nome: "Clínica Geral",
-            descricao:
-                "Continue sua jornada com atendimento online em Clínica Geral."
-        },
+    event.preventDefault()
 
-        "psicologia": {
-            nome: "Psicologia",
-            descricao:
-                "Continue sua jornada com atendimento online em Psicologia."
-        },
 
-        "nutricao": {
-            nome: "Nutrição",
-            descricao:
-                "Continue sua jornada com atendimento online em Nutrição."
-        },
+    if (!formularioLogin.checkValidity()) {
 
-        "cardiologia": {
-            nome: "Cardiologia",
-            descricao:
-                "Continue sua jornada com atendimento online em Cardiologia."
-        },
+        formularioLogin.reportValidity()
 
-        "dermatologia": {
-            nome: "Dermatologia",
-            descricao:
-                "Continue sua jornada com atendimento online em Dermatologia."
-        },
-
-        "ginecologia": {
-            nome: "Ginecologia",
-            descricao:
-                "Continue sua jornada com atendimento online em Ginecologia."
-        }
+        return
 
     }
 
 
-    if (codigoEspecialidade) {
+    if (mensagemLogin) {
 
-        const especialidade =
-            especialidades[codigoEspecialidade]
-
-
-        if (especialidade) {
-
-            const selectedSpecialtyBox =
-                document.getElementById("selectedSpecialtyBox")
-
-            const selectedSpecialty =
-                document.getElementById("selectedSpecialty")
-
-            const telemedicineTitle =
-                document.getElementById("telemedicineTitle")
-
-            const telemedicineDescription =
-                document.getElementById("telemedicineDescription")
-
-            const cardSpecialty =
-                document.getElementById("cardSpecialty")
-
-
-            if (selectedSpecialtyBox) {
-                selectedSpecialtyBox.hidden = false
-            }
-
-            if (selectedSpecialty) {
-                selectedSpecialty.textContent = especialidade.nome
-            }
-
-            if (telemedicineTitle) {
-                telemedicineTitle.innerHTML =
-                    `${especialidade.nome}<br>
-                     <em>onde você estiver.</em>`
-            }
-
-            if (telemedicineDescription) {
-                telemedicineDescription.textContent = especialidade.descricao
-            }
-
-            if (cardSpecialty) {
-                cardSpecialty.textContent = especialidade.nome
-            }
-
-        }
+        mensagemLogin.textContent = 'Entrando...'
 
     }
 
 
-    /* ------------------------------------------------------------------ */
-    /* 2) Portão de login: só acessa o Dr.Online logado na Daiji           */
-    /* ------------------------------------------------------------------ */
-
-    function daijiEstaLogado() {
-        try {
-            return localStorage.getItem("daijiLogado") === "true"
-        } catch (erro) {
-            return false
-        }
+    // marca que a pessoa está logada na Daiji (portão de acesso do Dr.Online)
+    try {
+        localStorage.setItem('daijiLogado', 'true')
+    } catch (erro) {
+        // ambiente sem localStorage (aba privada, etc.) — segue mesmo assim
     }
 
 
-    document.querySelectorAll("[data-dronline]").forEach((link) => {
+    // se a pessoa foi mandada para cá por um botão que exige login
+    // (ex.: Dr.Online), volta para o destino original depois de entrar
+    const redirect =
+        new URLSearchParams(window.location.search).get('redirect')
 
-        link.addEventListener("click", (evento) => {
 
-            // já logado → deixa o link seguir normalmente para o Dr.Online
-            if (daijiEstaLogado()) {
-                return
-            }
+    window.location.href = redirect ? redirect : 'score.html'
 
-            // não logado → intercepta e manda para o login, guardando o destino
-            evento.preventDefault()
+})
 
-            const destino = link.getAttribute("href")
 
-            window.location.href =
-                "../app/login.html?redirect=" + encodeURIComponent(destino)
+// ---------- Mostrar / ocultar senha ----------
+const togglePassword = document.querySelector('#togglePassword')
+const campoSenhaLogin = document.querySelector('#senha')
+const passwordIcon = document.querySelector('#passwordIcon')
 
-        })
+if (togglePassword && campoSenhaLogin) {
+
+    togglePassword.addEventListener('click', function () {
+
+        const visivel = campoSenhaLogin.type === 'text'
+
+        campoSenhaLogin.type = visivel ? 'password' : 'text'
+
+        togglePassword.setAttribute(
+            'aria-label',
+            visivel ? 'Mostrar senha' : 'Ocultar senha'
+        )
+
+        if (passwordIcon) {
+            passwordIcon.classList.toggle('bi-eye', visivel)
+            passwordIcon.classList.toggle('bi-eye-slash', !visivel)
+        }
 
     })
 
-})
+}

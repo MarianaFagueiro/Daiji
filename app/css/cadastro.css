@@ -1123,3 +1123,30 @@ body {
     }
 
 }
+/* ---------- Botão "mostrar senha" ---------- */
+.field-wrap.has-toggle .glass-input {
+    padding-right: 48px;
+}
+
+.field-wrap .toggle-password {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 18px;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.field-wrap .toggle-password:hover {
+    color: #ffffff;
+}

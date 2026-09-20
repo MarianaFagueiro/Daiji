@@ -1,11 +1,3 @@
-/* =====================================================
-   DAIJI — controle de tema (Escuro / Claro)
-   Aplica o tema salvo o mais cedo possível (evita "flash"),
-   guarda a escolha em localStorage e conecta os controles
-   marcados com [data-theme-set].
-   Carregado no <head> de todas as páginas do app.
-===================================================== */
-
 (function () {
 
     var KEY = 'daiji-theme';          // 'dark' | 'light'
