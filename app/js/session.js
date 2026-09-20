@@ -1,104 +1,204 @@
-(function () {
-    const chaves = ['idBeneficiario', 'idAutenticacao', 'nome', 'email', 'tipoUsuario']
-    const privada = document.currentScript.hasAttribute('data-private')
-    let bloqueada = false
+// =====================================================
+// DAIJI - CONTROLE DE SESSÃO
+// =====================================================
 
-    function inteiroPositivo(valor) {
-        return typeof valor === 'string' && /^\d+$/.test(valor) &&
-            Number.isSafeInteger(Number(valor)) && Number(valor) > 0
+(function () {
+
+    const SESSION_KEY = 'daijiSession'
+    const PROFILE_KEY = 'daijiPerfil'
+
+    // -------------------------------------------------
+    // OBTER SESSÃO
+    // -------------------------------------------------
+
+    function obterSessao() {
+
+        try {
+
+            const sessaoLocal = localStorage.getItem(SESSION_KEY)
+            const sessaoTemporaria = sessionStorage.getItem(SESSION_KEY)
+
+            const dados = sessaoLocal || sessaoTemporaria
+
+            if (!dados) {
+                return null
+            }
+
+            return JSON.parse(dados)
+
+        } catch (erro) {
+
+            console.error('Erro ao recuperar sessão:', erro)
+
+            return null
+
+        }
+
     }
 
-    function ler() {
+
+    // -------------------------------------------------
+    // VERIFICAR AUTENTICAÇÃO
+    // -------------------------------------------------
+
+    function estaAutenticado() {
+
+        const sessao = obterSessao()
+
+        return Boolean(
+            sessao &&
+            sessao.logado === true &&
+            sessao.usuario
+        )
+
+    }
+
+
+    // -------------------------------------------------
+    // CRIAR SESSÃO
+    // -------------------------------------------------
+
+    function criarSessao(usuario, manterConectado = false) {
+
+        const sessao = {
+
+            logado: true,
+
+            usuario: usuario,
+
+            criadoEm: new Date().toISOString()
+
+        }
+
+        // remove sessão anterior
+        localStorage.removeItem(SESSION_KEY)
+        sessionStorage.removeItem(SESSION_KEY)
+
+
+        if (manterConectado) {
+
+            localStorage.setItem(
+                SESSION_KEY,
+                JSON.stringify(sessao)
+            )
+
+        } else {
+
+            sessionStorage.setItem(
+                SESSION_KEY,
+                JSON.stringify(sessao)
+            )
+
+        }
+
+
+        // mantém também algumas informações do perfil
+
         try {
-            // Nunca completa uma sessão parcial com campos de outro armazenamento.
-            const storage = sessionStorage.getItem('idBeneficiario') !== null
-                ? sessionStorage : localStorage
-            const sessao = Object.fromEntries(chaves.map(chave => [chave, storage.getItem(chave)]))
-            if (!inteiroPositivo(sessao.idBeneficiario) || !inteiroPositivo(sessao.idAutenticacao) ||
-                !sessao.email || !/^[^\s@]+@[^\s@]+$/.test(sessao.email) ||
-                !sessao.tipoUsuario || !sessao.tipoUsuario.trim() || sessao.tipoUsuario === 'null' ||
-                sessao.tipoUsuario === 'undefined') return null
-            return sessao
-        } catch {
+
+            const perfilAtual =
+                JSON.parse(
+                    localStorage.getItem(PROFILE_KEY)
+                ) || {}
+
+            const novoPerfil = {
+
+                ...perfilAtual,
+
+                nome:
+                    usuario.nome ||
+                    perfilAtual.nome ||
+                    '',
+
+                email:
+                    usuario.email ||
+                    perfilAtual.email ||
+                    ''
+
+            }
+
+            localStorage.setItem(
+                PROFILE_KEY,
+                JSON.stringify(novoPerfil)
+            )
+
+        } catch (erro) {
+
+            console.error(
+                'Erro ao salvar perfil:',
+                erro
+            )
+
+        }
+
+    }
+
+
+    // -------------------------------------------------
+    // ENCERRAR SESSÃO
+    // -------------------------------------------------
+
+    function logout() {
+
+        localStorage.removeItem(SESSION_KEY)
+        sessionStorage.removeItem(SESSION_KEY)
+
+        window.location.href = 'login.html'
+
+    }
+
+
+    // -------------------------------------------------
+    // USUÁRIO ATUAL
+    // -------------------------------------------------
+
+    function obterUsuario() {
+
+        const sessao = obterSessao()
+
+        if (!sessao) {
             return null
         }
+
+        return sessao.usuario || null
+
     }
 
-    const contexto = privada ? ler() : null
 
-    function bloquear() {
-        bloqueada = true
-        document.documentElement.style.visibility = 'hidden'
+    // -------------------------------------------------
+    // DISPONIBILIZA FUNÇÕES GLOBALMENTE
+    // -------------------------------------------------
+
+    window.DaijiSession = {
+
+        obterSessao,
+
+        estaAutenticado,
+
+        criarSessao,
+
+        obterUsuario,
+
+        logout
+
+    }
+
+
+    // -------------------------------------------------
+    // PROTEÇÃO DAS PÁGINAS PRIVADAS
+    // -------------------------------------------------
+
+    const scriptAtual = document.currentScript
+
+    const paginaPrivada =
+        scriptAtual &&
+        scriptAtual.hasAttribute('data-private')
+
+
+    if (paginaPrivada && !estaAutenticado()) {
+
         window.location.replace('login.html')
-        return false
+
     }
 
-    function validar() {
-        if (!privada) return true
-        const atual = ler()
-        if (bloqueada || !contexto || !atual ||
-            atual.idBeneficiario !== contexto.idBeneficiario ||
-            atual.idAutenticacao !== contexto.idAutenticacao) return bloquear()
-        return true
-    }
-
-    function limpar(storage) {
-        for (const chave of chaves) storage.removeItem(chave)
-    }
-
-    // Notifica outras abas abertas sem criar tokens ou credenciais adicionais.
-    let canal = null
-    try {
-        if (typeof BroadcastChannel !== 'undefined') canal = new BroadcastChannel('daiji-session')
-    } catch { /* A proteção por storage e revalidação continua disponível. */ }
-
-    function sair() {
-        const sessao = ler() || contexto
-        try {
-            limpar(sessionStorage)
-            limpar(localStorage)
-        } catch {
-            bloquear()
-            return
-        }
-        if (canal && sessao) canal.postMessage({
-            acao: 'logout',
-            idBeneficiario: sessao.idBeneficiario,
-            idAutenticacao: sessao.idAutenticacao
-        })
-        bloquear()
-    }
-
-    if (canal) canal.onmessage = event => {
-        const aviso = event.data
-        const atual = ler()
-        if (aviso?.acao !== 'logout' || !atual ||
-            aviso.idBeneficiario !== atual.idBeneficiario ||
-            aviso.idAutenticacao !== atual.idAutenticacao) return
-        try { limpar(sessionStorage) } catch { /* A página será bloqueada. */ }
-        if (privada) bloquear()
-    }
-
-    window.DaijiSession = { ler, validar, sair }
-
-    if (privada) {
-        validar()
-        window.addEventListener('pageshow', validar)
-        window.addEventListener('focus', validar)
-        window.addEventListener('storage', event => {
-            if (event.storageArea === localStorage && (event.key === null || chaves.includes(event.key))) validar()
-        })
-        for (const evento of ['click', 'submit']) {
-            document.addEventListener(evento, event => {
-                if (!validar()) {
-                    event.preventDefault()
-                    event.stopImmediatePropagation()
-                }
-            }, true)
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        document.querySelectorAll('[data-logout]').forEach(botao => botao.addEventListener('click', sair))
-    })
 })()

@@ -351,10 +351,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /* ---- Telegram deep link ---- */
-  // Replace 'daiji_bot' with your real bot's @username once it exists
-  // (create one via https://t.me/BotFather). Every "Comece pelo Telegram"
-  // button uses this constant so you only change it in one place.
-  const TELEGRAM_BOT_USERNAME = 'daiji_bot';
+  // Bot já criado: @DaijiSaudeBot. Se um dia trocar de bot, mude só aqui —
+  // todo botão "Comece pelo Telegram" usa esta mesma constante.
+  const TELEGRAM_BOT_USERNAME = 'DaijiSaudeBot';
   document.querySelectorAll('[data-telegram-cta]').forEach(btn => {
     btn.href = `https://t.me/${TELEGRAM_BOT_USERNAME}`;
     btn.target = '_blank';

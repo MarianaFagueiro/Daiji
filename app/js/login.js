@@ -1,113 +1,242 @@
-const formularioLogin = document.querySelector('#loginForm')
+document.addEventListener('DOMContentLoaded', function () {
 
-const mensagemLogin = document.querySelector('#loginMessage')
+    // =====================================================
+    // ELEMENTOS
+    // =====================================================
+
+    const loginForm =
+        document.querySelector('#loginForm')
+
+    const campoEmail =
+        document.querySelector('#email')
+
+    const campoSenha =
+        document.querySelector('#senha')
+
+    const lembrar =
+        document.querySelector('#lembrar')
+
+    const loginMessage =
+        document.querySelector('#loginMessage')
+
+    const togglePassword =
+        document.querySelector('#togglePassword')
+
+    const passwordIcon =
+        document.querySelector('#passwordIcon')
 
 
-const campoEmail = document.querySelector('#email')
-const campoSenha = document.querySelector('#senha')
-const lembrarLogin = document.querySelector('#lembrar')
-const botaoLogin = formularioLogin.querySelector('button[type="submit"]')
-let loginEmAndamento = false
+    // =====================================================
+    // MOSTRAR / OCULTAR SENHA
+    // =====================================================
 
-function mostrarMensagemLogin(mensagem) {
-    if (mensagemLogin) {
-        mensagemLogin.textContent = mensagem
+    if (togglePassword && campoSenha) {
+
+        togglePassword.addEventListener(
+            'click',
+            function () {
+
+                const visivel =
+                    campoSenha.type === 'text'
+
+
+                campoSenha.type =
+                    visivel
+                        ? 'password'
+                        : 'text'
+
+
+                togglePassword.setAttribute(
+                    'aria-label',
+                    visivel
+                        ? 'Mostrar senha'
+                        : 'Ocultar senha'
+                )
+
+
+                if (passwordIcon) {
+
+                    passwordIcon.classList.toggle(
+                        'bi-eye',
+                        visivel
+                    )
+
+                    passwordIcon.classList.toggle(
+                        'bi-eye-slash',
+                        !visivel
+                    )
+
+                }
+
+            }
+        )
+
     }
-}
-
-formularioLogin.addEventListener('invalid', function () {
-    mostrarMensagemLogin('Preencha o e-mail e a senha corretamente.')
-}, true)
-
-formularioLogin.addEventListener('submit', async function (event) {
-
-    event.preventDefault()
 
 
-    if (loginEmAndamento) return
+    // =====================================================
+    // LOGIN
+    // =====================================================
 
-    const email = campoEmail.value.trim()
-    const senha = campoSenha.value
-    const manterConectado = lembrarLogin.checked
-
-    if (!email || !senha || !formularioLogin.checkValidity()) {
-
-        mostrarMensagemLogin('Preencha o e-mail e a senha corretamente.')
-
-        formularioLogin.reportValidity()
-
+    if (!loginForm) {
         return
-
     }
 
 
-    loginEmAndamento = true
-    botaoLogin.disabled = true
-    mostrarMensagemLogin('Entrando...')
+    loginForm.addEventListener(
+        'submit',
+        function (event) {
 
-    try {
-        let resposta
+            event.preventDefault()
 
-        try {
-            resposta = await DaijiHttp.request('http://localhost:8080/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, senha })
-            })
-        } catch (erro) {
-            mostrarMensagemLogin(DaijiHttp.isTimeout(erro)
-                ? 'O servidor demorou para responder. Tente entrar novamente.'
-                : 'Não foi possível conectar ao servidor. Tente novamente.')
-            return
-        }
 
-        if (!resposta.ok) {
-            if (resposta.status === 401 || resposta.status === 403) {
-                mostrarMensagemLogin('E-mail ou senha inválidos.')
-            } else if (resposta.status === 400 || resposta.status === 422) {
-                mostrarMensagemLogin('Não foi possível entrar. Verifique o e-mail e a senha.')
-            } else {
-                mostrarMensagemLogin('Não foi possível entrar. Tente novamente mais tarde.')
+            // ---------------------------------------------
+            // validação HTML
+            // ---------------------------------------------
+
+            if (!loginForm.checkValidity()) {
+
+                loginForm.reportValidity()
+
+                return
+
             }
-            return
-        }
 
-        let usuario
 
-        try {
-            usuario = await resposta.json()
-        } catch {
-            mostrarMensagemLogin('Não foi possível confirmar o login. Tente novamente.')
-            return
-        }
+            const email =
+                campoEmail.value.trim()
 
-        if (!usuario || !Number.isInteger(usuario.idAutenticacao) ||
-            !(usuario.idBeneficiario === null || Number.isInteger(usuario.idBeneficiario)) ||
-            !(usuario.nome === null || typeof usuario.nome === 'string') ||
-            typeof usuario.email !== 'string' || typeof usuario.tipoUsuario !== 'string') {
-            mostrarMensagemLogin('Não foi possível confirmar o login. Tente novamente.')
-            return
-        }
+            const senha =
+                campoSenha.value.trim()
 
-        const camposSessao = ['idBeneficiario', 'idAutenticacao', 'nome', 'email', 'tipoUsuario']
 
-        try {
-            const armazenamento = manterConectado ? localStorage : sessionStorage
-            const outroArmazenamento = manterConectado ? sessionStorage : localStorage
+            // ---------------------------------------------
+            // validação básica
+            // ---------------------------------------------
 
-            for (const campo of camposSessao) {
-                outroArmazenamento.removeItem(campo)
-                armazenamento.setItem(campo, String(usuario[campo]))
+            if (!email || !senha) {
+
+                mostrarMensagem(
+                    'Informe seu e-mail e sua senha.',
+                    'erro'
+                )
+
+                return
+
             }
-        } catch {
-            mostrarMensagemLogin('Não foi possível salvar a sessão. Verifique as permissões do navegador e tente novamente.')
+
+
+            // =================================================
+            // LOGIN DO PROTÓTIPO
+            //
+            // neste momento qualquer e-mail e senha preenchidos
+            // criam uma sessão local
+            // =================================================
+
+            const usuario = {
+
+                email: email
+
+            }
+
+
+            if (
+                !window.DaijiSession ||
+                !window.DaijiSession.criarSessao
+            ) {
+
+                mostrarMensagem(
+                    'Não foi possível iniciar a sessão.',
+                    'erro'
+                )
+
+                console.error(
+                    'session.js não foi carregado corretamente'
+                )
+
+                return
+
+            }
+
+
+            // ---------------------------------------------
+            // cria sessão
+            // ---------------------------------------------
+
+            window.DaijiSession.criarSessao(
+                usuario,
+                lembrar?.checked === true
+            )
+
+
+            // ---------------------------------------------
+            // mensagem
+            // ---------------------------------------------
+
+            mostrarMensagem(
+                'Login realizado com sucesso.',
+                'sucesso'
+            )
+
+
+            // ---------------------------------------------
+            // vai para área interna
+            // ---------------------------------------------
+
+            setTimeout(function () {
+
+                window.location.href =
+                    'score.html'
+
+            }, 400)
+
+        }
+    )
+
+
+    // =====================================================
+    // MENSAGEM
+    // =====================================================
+
+    function mostrarMensagem(
+        texto,
+        tipo
+    ) {
+
+        if (!loginMessage) {
             return
         }
 
-        window.location.href = 'score.html'
-    } finally {
-        loginEmAndamento = false
-        botaoLogin.disabled = false
+
+        loginMessage.textContent =
+            texto
+
+
+        loginMessage.classList.remove(
+            'error',
+            'success',
+            'erro',
+            'sucesso'
+        )
+
+
+        if (tipo === 'erro') {
+
+            loginMessage.classList.add(
+                'error'
+            )
+
+        }
+
+
+        if (tipo === 'sucesso') {
+
+            loginMessage.classList.add(
+                'success'
+            )
+
+        }
+
     }
 
 })

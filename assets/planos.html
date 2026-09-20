@@ -4,37 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Planos — Daiji</title>
+<meta name="description" content="Comece de graça pelo Telegram e evolua para o cuidado coordenado da Unimed. Escolha como você entra na Daiji.">
+<link rel="icon" type="image/png" href="favicon.png">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-<nav class="oura-nav" id="ouraNav">
-  <div class="row-nav">
-    <a class="brand" href="index.html">DA<span class="bar">|</span>JI</a>
-    <div class="links">
-      <a href="index.html">Início</a>
-      <a href="especialidades.html">Especialidades</a>
-      <a href="planos.html" class="active">Planos</a>
-      <a href="como-funciona.html">Como Funciona</a>
-      <a href="estrategia.html">Estratégia</a>
-      <a href="seguranca.html">Segurança</a>
-      <a href="sobre.html">Sobre</a>
-      <a href="contato.html">Contato</a>
-    </div>
-    <div class="right">
-      <button class="icon-btn" data-theme-toggle aria-label="Alternar tema">
-        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4 12H2M22 12h-2M5 5l1.5 1.5M18.5 18.5 20 20M18.5 5.5 20 4M4 20l1.5-1.5"/></svg>
-        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.5A9 9 0 1111.5 3 7 7 0 0021 12.5z"/></svg>
-      </button>
-      <a class="btn-explore" style="padding:9px 20px; font-size:13px;" href="#planos-grid">Ver planos</a>
-    </div>
-  </div>
-</nav>
+<div id="daijiNav"></div>
+<script src="js/nav.js"></script>
+<noscript><nav class="oura-nav solid"><div class="row-nav"><a class="brand" href="index.html">DA<span class="bar">|</span>JI</a><div class="links"><a href="index.html">Início</a><a href="especialidades.html">Especialidades</a><a href="telemedicina.html">Telemedicina</a><a href="planos.html" class="active">Planos</a><a href="contato.html">Contato</a></div></div></nav></noscript>
 
 <header class="page-head">
   <span class="eyebrow" style="justify-content:center; display:flex;">Como você entra na Daiji</span>
   <h1>Comece de graça. Evolua para o cuidado coordenado.</h1>
-  <p>A Daiji foi pensada em duas camadas: uma entrada gratuita para qualquer pessoa, e uma experiência completa quando sua empresa ou operadora já é parceira.</p>
+  <p>A Daiji tem duas portas de entrada. Uma é livre e gratuita, para qualquer pessoa começar a cuidar da saúde hoje. A outra é o cuidado coordenado, liberado para quem já tem plano Unimed. Você escolhe por onde entrar — e pode evoluir de uma para a outra quando fizer sentido.</p>
 </header>
 
 <main>
@@ -42,6 +25,7 @@
     <div class="container-ap">
       <div class="fx-in" style="display:grid; grid-template-columns:1fr 1fr; gap:24px;">
 
+        <!-- ESSENCIAL -->
         <div class="plan-card">
           <div class="plan-visual">
             <span class="plan-badge">Gratuito</span>
@@ -49,41 +33,74 @@
           </div>
           <div class="plan-body">
             <div class="pname">Daiji Essencial</div>
-            <p style="font-size:13px; color:var(--muted); margin-bottom:16px;">Entrada livre, sem custo, direto pelo Telegram.</p>
+            <p style="font-size:13px; color:var(--muted); margin-bottom:16px;">Entrada livre, sem custo, direto pelo Telegram. O primeiro passo para colocar sua saúde num fluxo contínuo.</p>
             <ul>
               <li>Check-ins de rotina e lembretes</li>
               <li>Busca na rede de especialistas</li>
+              <li>Acesso à telemedicina com profissionais parceiros</li>
               <li>Conteúdo educativo e recompensas leves</li>
               <li>1 perfil de saúde</li>
             </ul>
-            <a href="estrategia.html" class="btn-outline" style="width:100%; text-align:center; display:block;">Começar agora</a>
+            <a href="telemedicina.html" class="btn-explore" style="width:100%; text-align:center; display:block;">Continuar para a telemedicina</a>
+            <a href="https://t.me/DaijiSaudeBot" data-telegram-cta class="link-arrow" style="display:inline-flex; margin-top:14px;">Começar agora pelo Telegram
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </a>
           </div>
         </div>
 
+        <!-- COORDENADO -->
         <div class="plan-card featured">
           <div class="plan-visual">
-            <span class="plan-badge alt">Via sua empresa / Unimed</span>
+            <span class="plan-badge alt">Você tem plano Unimed?</span>
             <div class="mini-ring" style="border-color:var(--blue); box-shadow:0 0 40px var(--blue-dim);">+</div>
           </div>
           <div class="plan-body">
             <div class="pname">Daiji Coordenado</div>
-            <p style="font-size:13px; color:var(--muted); margin-bottom:16px;">Liberado quando sua empresa ou plano Unimed já é parceiro.</p>
+            <p style="font-size:13px; color:var(--muted); margin-bottom:16px;">Se você já é cliente Unimed, o cuidado coordenado está incluído. Faça seu cadastro e desbloqueie o acompanhamento completo.</p>
             <ul>
               <li>Score de risco monitorado continuamente</li>
               <li>Encaminhamento coordenado com a rede credenciada</li>
               <li>Prioridade no agendamento e plantão 24h</li>
+              <li>Telemedicina integrada ao seu histórico</li>
               <li>Compartilhamento com família e cuidadores</li>
             </ul>
-            <a href="contato.html" class="btn-explore" style="width:100%; text-align:center; display:block;">Saiba se sua empresa participa</a>
+            <a href="../app/cadastro.html" class="btn-explore" style="width:100%; text-align:center; display:block; background:var(--blue); color:#fff;">Tenho plano Unimed — fazer cadastro</a>
+            <a href="contato.html" class="link-arrow" style="display:inline-flex; margin-top:14px;">Não sei se minha empresa participa
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </a>
           </div>
         </div>
 
       </div>
-      <p class="fx-in" style="text-align:center; color:var(--muted-2); font-size:12.5px; margin-top:22px;">O plano gratuito é o ponto de entrada; quando há risco relevante, a Daiji recomenda migrar para o cuidado coordenado — sempre com consentimento.</p>
+      <p class="fx-in" style="text-align:center; color:var(--muted-2); font-size:12.5px; margin-top:22px;">O plano gratuito é o ponto de entrada; quando há risco relevante, a Daiji recomenda migrar para o cuidado coordenado — sempre com o seu consentimento.</p>
     </div>
   </section>
 
+  <!-- JORNADA / STORYTELLING -->
   <section class="sec sec-alt">
+    <div class="container-ap">
+      <div class="sec-head center fx-in">
+        <span class="eyebrow" style="justify-content:center; display:flex;">A jornada Daiji</span>
+        <h2>Do primeiro check-in ao atendimento certo</h2>
+        <p>Independentemente do plano, o caminho é o mesmo: acompanhar a rotina, entender os sinais e chegar ao cuidado profissional no momento certo — sem passar pela emergência.</p>
+      </div>
+      <div class="fx-in" style="display:grid; grid-template-columns:repeat(5,1fr); gap:14px; align-items:stretch;">
+        <div class="card"><div class="feat-ico">↻</div><h4>Prevenção</h4><p>Check-ins e lembretes constroem o seu histórico de saúde no dia a dia.</p></div>
+        <div class="card"><div class="feat-ico">◔</div><h4>Identificação</h4><p>A Daiji percebe mudanças relevantes antes que virem urgência.</p></div>
+        <div class="card"><div class="feat-ico">＋</div><h4>Especialidade</h4><p>Você encontra a área de cuidado mais adequada para o momento.</p></div>
+        <div class="card"><div class="feat-ico">◈</div><h4>Telemedicina</h4><p>Segue direto para o atendimento online com profissionais parceiros.</p></div>
+        <div class="card"><div class="feat-ico">⇄</div><h4>Acompanhamento</h4><p>Volta para a Daiji e mantém o cuidado contínuo, com você no controle.</p></div>
+      </div>
+      <p class="fx-in" style="text-align:center; margin-top:26px;">
+        <a href="telemedicina.html" class="link-arrow" style="display:inline-flex;">Ver como funciona a telemedicina
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+      </p>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="sec">
     <div class="container-ap">
       <div class="sec-head center fx-in">
         <span class="eyebrow" style="justify-content:center; display:flex;">Perguntas frequentes</span>
@@ -92,15 +109,15 @@
       <div class="fx-in" style="max-width:720px; margin:0 auto;">
         <details class="faq-item" open>
           <summary>O plano gratuito tem algum custo escondido? <span class="plus">+</span></summary>
-          <p>Não. O Daiji Essencial é gratuito para qualquer pessoa, sem cartão de crédito ou assinatura.</p>
+          <p>Não. O Daiji Essencial é gratuito para qualquer pessoa, sem cartão de crédito ou assinatura. A telemedicina é realizada em plataforma parceira, com as condições informadas no momento do atendimento.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Como faço o cadastro se já tenho plano Unimed? <span class="plus">+</span></summary>
+          <p>No card do Daiji Coordenado, clique em “Tenho plano Unimed — fazer cadastro”. Você cria sua conta, confirmamos que seu plano está habilitado e o cuidado coordenado é desbloqueado.</p>
         </details>
         <details class="faq-item">
           <summary>Preciso baixar um app? <span class="plus">+</span></summary>
           <p>Não é obrigatório — a experiência principal acontece pelo Telegram. O aplicativo existe como canal complementar para quem preferir.</p>
-        </details>
-        <details class="faq-item">
-          <summary>Como sei se minha empresa já é parceira? <span class="plus">+</span></summary>
-          <p>Fale com o RH da sua empresa ou entre em contato com a gente — verificamos se seu plano Unimed já está habilitado.</p>
         </details>
         <details class="faq-item">
           <summary>Meus dados ficam diferentes entre os planos? <span class="plus">+</span></summary>
@@ -129,9 +146,9 @@
         <h6>Produto</h6>
         <ul>
           <li><a href="especialidades.html">Especialidades</a></li>
+          <li><a href="telemedicina.html">Telemedicina</a></li>
           <li><a href="planos.html">Planos</a></li>
           <li><a href="como-funciona.html">Como funciona</a></li>
-          <li><a href="estrategia.html">Estratégia de captação</a></li>
         </ul>
       </div>
       <div>
@@ -183,6 +200,14 @@
   </form>
 </div>
 
+<noscript><style>.fx-in{opacity:1 !important; transform:none !important;}</style></noscript>
 <script src="js/main.js"></script>
+<script>
+  window.addEventListener('load', function () {
+    setTimeout(function () {
+      document.querySelectorAll('.fx-in').forEach(function (el) { el.classList.add('show'); });
+    }, 600);
+  });
+</script>
 </body>
 </html>
