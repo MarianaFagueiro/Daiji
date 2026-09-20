@@ -200,20 +200,8 @@
 
         mostrarEstado('Carregando score...', 'Consultando seu score.')
 
-        let idSalvo
-        try {
-            idSalvo = sessionStorage.getItem('idBeneficiario')
-            if (idSalvo === null) {
-                idSalvo = localStorage.getItem('idBeneficiario')
-            }
-        } catch {
-            mostrarEstado('Sessão indisponível', 'Não foi possível acessar sua sessão. Faça login novamente.')
-            return false
-        }
-
-        const idBeneficiario = Number(idSalvo)
-        if (!idSalvo || !/^\d+$/.test(idSalvo) ||
-            !Number.isSafeInteger(idBeneficiario) || idBeneficiario <= 0) {
+        const idBeneficiario = DaijiSession.obterIdBeneficiario()
+        if (idBeneficiario === null) {
             mostrarEstado('Identificação necessária', 'Faça login com uma conta de beneficiário para consultar seu score.')
             return false
         }
@@ -223,7 +211,7 @@
 
         let resposta
         try {
-            resposta = await DaijiHttp.request(`http://localhost:8080/api/beneficiarios/${idBeneficiario}/score`)
+            resposta = await DaijiHttp.request(`/api/beneficiarios/${idBeneficiario}/score`)
         } catch (erro) {
             mostrarEstado('Score indisponível', DaijiHttp.isTimeout(erro)
                 ? 'O servidor demorou para responder. Recarregue a página para tentar novamente.'
@@ -635,14 +623,7 @@
     mensagemCheckin.setAttribute('aria-live', 'polite')
 
     function obterBeneficiarioCheckin() {
-        try {
-            let idSalvo = sessionStorage.getItem('idBeneficiario')
-            if (idSalvo === null) idSalvo = localStorage.getItem('idBeneficiario')
-            const id = Number(idSalvo)
-            return idSalvo && /^\d+$/.test(idSalvo) && Number.isSafeInteger(id) && id > 0 ? id : null
-        } catch {
-            return null
-        }
+        return DaijiSession.obterIdBeneficiario()
     }
 
     function dataLocalCheckin() {
@@ -669,7 +650,7 @@
 
     window.addEventListener('storage', event => {
         if (event.storageArea === localStorage &&
-            (event.key === 'idBeneficiario' || event.key === null)) {
+            (event.key === 'daijiSession' || event.key === 'idBeneficiario' || event.key === null)) {
             validarContextoBeneficiario()
         }
     })
@@ -712,7 +693,7 @@
         try {
             let resposta
             try {
-                resposta = await DaijiHttp.request(`http://localhost:8080/api/beneficiarios/${idBeneficiario}/checkins`, {
+                resposta = await DaijiHttp.request(`/api/beneficiarios/${idBeneficiario}/checkins`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(dados)
@@ -742,10 +723,10 @@
 
             try {
                 if (!validarContextoBeneficiario()) throw new Error('Contexto de beneficiário alterado')
-                const recalculo = await DaijiHttp.request(`http://localhost:8080/api/beneficiarios/${idBeneficiario}/score/recalcular`, {
+                const recalculo = await DaijiHttp.request(`/api/beneficiarios/${idBeneficiario}/score/recalcular`, {
                     method: 'POST'
                 }, false)
-                if (!recalculo.ok) throw new Error('Falha no recálculo')
+                if (recalculo.status !== 201) throw new Error('Falha no recálculo')
 
                 // Aguarda a consulta inicial para que ela não sobrescreva o novo score.
                 await consultaInicialScore

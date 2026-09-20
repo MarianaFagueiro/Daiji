@@ -83,116 +83,66 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
-    loginForm.addEventListener(
-        'submit',
-        function (event) {
+    let emAndamento = false
+    const botaoEntrar = loginForm.querySelector('[type="submit"]')
+    loginMessage?.setAttribute('role', 'status')
+    loginMessage?.setAttribute('aria-live', 'polite')
 
-            event.preventDefault()
-
-
-            // ---------------------------------------------
-            // validação HTML
-            // ---------------------------------------------
-
-            if (!loginForm.checkValidity()) {
-
-                loginForm.reportValidity()
-
-                return
-
-            }
-
-
-            const email =
-                campoEmail.value.trim()
-
-            const senha =
-                campoSenha.value.trim()
-
-
-            // ---------------------------------------------
-            // validação básica
-            // ---------------------------------------------
-
-            if (!email || !senha) {
-
-                mostrarMensagem(
-                    'Informe seu e-mail e sua senha.',
-                    'erro'
-                )
-
-                return
-
-            }
-
-
-            // =================================================
-            // LOGIN DO PROTÓTIPO
-            //
-            // neste momento qualquer e-mail e senha preenchidos
-            // criam uma sessão local
-            // =================================================
-
-            const usuario = {
-
-                email: email
-
-            }
-
-
-            if (
-                !window.DaijiSession ||
-                !window.DaijiSession.criarSessao
-            ) {
-
-                mostrarMensagem(
-                    'Não foi possível iniciar a sessão.',
-                    'erro'
-                )
-
-                console.error(
-                    'session.js não foi carregado corretamente'
-                )
-
-                return
-
-            }
-
-
-            // ---------------------------------------------
-            // cria sessão
-            // ---------------------------------------------
-
-            window.DaijiSession.criarSessao(
-                usuario,
-                lembrar?.checked === true
-            )
-
-
-            // ---------------------------------------------
-            // mensagem
-            // ---------------------------------------------
-
-            mostrarMensagem(
-                'Login realizado com sucesso.',
-                'sucesso'
-            )
-
-
-            // ---------------------------------------------
-            // vai para área interna
-            // ---------------------------------------------
-
-            setTimeout(function () {
-
-                window.location.href =
-                    'score.html'
-
-            }, 400)
-
+    loginForm.addEventListener('submit', async function (event) {
+        event.preventDefault()
+        if (emAndamento) return
+        if (!loginForm.checkValidity()) {
+            loginForm.reportValidity()
+            return
         }
-    )
-
+        const email = campoEmail.value.trim()
+        const senha = campoSenha.value // A senha deve chegar sem transformações ao backend.
+        if (!email || !senha) {
+            mostrarMensagem('Informe seu e-mail e sua senha.', 'erro')
+            return
+        }
+        emAndamento = true
+        botaoEntrar.disabled = true
+        mostrarMensagem('Entrando...', '')
+        let sucesso = false
+        try {
+            const resposta = await DaijiHttp.request('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, senha })
+            })
+            if (resposta.status === 401) {
+                mostrarMensagem('E-mail ou senha inválidos.', 'erro')
+                return
+            }
+            if (resposta.status !== 200) {
+                mostrarMensagem('Não foi possível entrar. Tente novamente mais tarde.', 'erro')
+                return
+            }
+            let usuario
+            try { usuario = await resposta.json() } catch {
+                mostrarMensagem('O serviço retornou uma resposta inválida.', 'erro')
+                return
+            }
+            try { DaijiSession.criarSessao(usuario, lembrar?.checked === true) } catch {
+                mostrarMensagem('Não foi possível iniciar a sessão. Confira a resposta do serviço e o armazenamento do navegador.', 'erro')
+                return
+            }
+            sucesso = true
+            campoSenha.value = ''
+            mostrarMensagem('Login realizado com sucesso.', 'sucesso')
+            setTimeout(() => { window.location.href = 'score.html' }, 400)
+        } catch (erro) {
+            mostrarMensagem(DaijiHttp.isTimeout(erro)
+                ? 'O servidor demorou para responder. Tente novamente.'
+                : 'Não foi possível conectar ao serviço. Tente novamente mais tarde.', 'erro')
+        } finally {
+            if (!sucesso) {
+                emAndamento = false
+                botaoEntrar.disabled = false
+            }
+        }
+    })
 
     // =====================================================
     // MENSAGEM

@@ -16,7 +16,7 @@
         try {
             return await Promise.race([
                 (async () => {
-                    const resposta = await fetch(url, { ...options, signal: controller.signal })
+                    const resposta = await fetch(DaijiApiConfig.url(url), { ...options, signal: controller.signal })
                     // Inclui a leitura do JSON no prazo. Check-in/recálculo usam só o status.
                     const texto = lerCorpo && resposta.ok ? await resposta.text() : ''
                     return {
