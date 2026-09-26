@@ -38,6 +38,17 @@ formulario.addEventListener('submit', function (event) {
     // quem acaba de se cadastrar já entra logado na Daiji
     try {
         localStorage.setItem('daijiLogado', 'true')
+
+        // guarda quem é o usuário logado (usado na Comunidade etc.)
+        const nome = document.querySelector('#nome').value.trim()
+        const emailCampo = document.querySelector('#email')
+        const email = emailCampo ? emailCampo.value.trim().toLowerCase() : ''
+
+        const contas = JSON.parse(localStorage.getItem('daiji_contas') || '{}')
+        if (email) contas[email] = nome
+        localStorage.setItem('daiji_contas', JSON.stringify(contas))
+
+        localStorage.setItem('daiji_usuario', JSON.stringify({ nome: nome, email: email }))
     } catch (erro) {
         // ambiente sem localStorage — segue mesmo assim
     }

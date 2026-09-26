@@ -27,6 +27,23 @@ formularioLogin.addEventListener('submit', function (event) {
     // marca que a pessoa está logada na Daiji (portão de acesso do Dr.Online)
     try {
         localStorage.setItem('daijiLogado', 'true')
+
+        // identifica o usuário logado: usa o nome do cadastro feito
+        // com este e-mail; se não houver, monta a partir do e-mail
+        const email = document.querySelector('#email').value.trim().toLowerCase()
+        const contas = JSON.parse(localStorage.getItem('daiji_contas') || '{}')
+
+        const nomeDoEmail = email
+            .split('@')[0]
+            .split(/[._-]+/)
+            .filter(Boolean)
+            .map(p => p.charAt(0).toUpperCase() + p.slice(1))
+            .join(' ')
+
+        localStorage.setItem('daiji_usuario', JSON.stringify({
+            nome: contas[email] || nomeDoEmail || 'Você',
+            email: email
+        }))
     } catch (erro) {
         // ambiente sem localStorage (aba privada, etc.) — segue mesmo assim
     }

@@ -6,10 +6,29 @@
        é diferente em cada um)
     ====================================================== */
 
+    /* usuário logado (salvo no login/cadastro) */
+    function usuarioLogado() {
+        try {
+            const u = JSON.parse(localStorage.getItem('daiji_usuario') || 'null')
+            if (u && u.nome) return u.nome.trim()
+        } catch (e) { /* sem localStorage */ }
+        return 'Você'
+    }
+
+    function iniciaisDe(nome) {
+        const partes = nome.split(/\s+/).filter(Boolean)
+        const letras = partes.length > 1
+            ? partes[0][0] + partes[partes.length - 1][0]
+            : partes[0].slice(0, 2)
+        return letras.toUpperCase()
+    }
+
+    const NOME_USUARIO = usuarioLogado()
+
     const VOCE = {
-        initials: 'IS',
+        initials: iniciaisDe(NOME_USUARIO),
         avatar: 'avatar-green',
-        name: 'Israel',
+        name: NOME_USUARIO,
         you: true,
         // últimos 7 dias (o último item é hoje)
         progress: [1, 1, 1, 1, 1, 1, 1],
