@@ -1714,3 +1714,38 @@ body {
     }
 
 }
+
+/* =====================================================
+   STREAKS · VARIAÇÕES
+===================================================== */
+
+.avatar-purple {
+    background: linear-gradient(145deg, #b39af0, #7a5bd0);
+}
+
+.avatar-teal {
+    background: linear-gradient(145deg, #5fd6d0, #2a9c9a);
+}
+
+.avatar-coral {
+    background: linear-gradient(145deg, #f5a07a, #d8664a);
+}
+
+.relation-tag {
+    padding: 0.18rem 0.45rem;
+    border-radius: 999px;
+    border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.1));
+    color: var(--text-faint);
+    font-size: 0.56rem;
+    flex: 0 0 auto;
+}
+
+.paused {
+    color: var(--text-faint);
+}
+
+/* marca o dia de hoje na barra de 7 dias */
+.streak-progress i.today {
+    outline: 1px solid rgba(53, 211, 153, 0.45);
+    outline-offset: 1px;
+}

@@ -11,18 +11,48 @@
     let points =
         1250
 
+    let healthScore =
+        74
+
+
+    const temDiabetes =
+        localStorage.getItem(
+            'daiji_diabetes'
+        ) ===
+        'sim'
+
 
     const answers = {
 
         sono: null,
 
-        hora: '22:30',
+        // duração do sono em horas (ex.: 7.5 = 7h30)
+        horasSono: 7.5,
+
+        // como o usuário informou: 'horas' ou 'intervalo'
+        sonoModo: 'horas',
+
+        dormiu: '23:00',
+
+        acordou: '06:30',
 
         estresse: null,
 
         dieta: null,
 
-        remedio: null
+        remedio: null,
+
+        passos: null,
+
+        agua: null,
+
+        paSis: null,
+
+        paDia: null,
+
+        glicemia: null,
+
+        medicaoGlicemia: null
 
     }
 
@@ -35,9 +65,26 @@
 
         'dieta',
 
-        'remedio'
+        'remedio',
+
+        'passos',
+
+        'agua'
 
     ]
+
+
+    if (temDiabetes) {
+
+        required.push(
+            'glicemia'
+        )
+
+        required.push(
+            'medicaoGlicemia'
+        )
+
+    }
 
 
     /* =====================================================
@@ -122,11 +169,16 @@
        SCORE
     ====================================================== */
 
-    function animateScore() {
+    function animateScore(score) {
 
         const arc =
             document.getElementById(
                 'scoreArc'
+            )
+
+        const scoreValueEl =
+            document.getElementById(
+                'scoreValue'
             )
 
 
@@ -147,8 +199,11 @@
             radius
 
 
-        const score =
-            74
+        const finalScore =
+            typeof score ===
+                'number' ?
+                score :
+                healthScore
 
 
         arc.style.strokeDasharray =
@@ -169,7 +224,7 @@
                             circumference *
                             (
                                 1 -
-                                score / 100
+                                finalScore / 100
                             )
 
                     },
@@ -178,6 +233,229 @@
 
             }
         )
+
+
+        if (scoreValueEl) {
+
+            scoreValueEl.textContent =
+                finalScore
+
+        }
+
+    }
+
+
+    /* =====================================================
+       CÁLCULO DO SCORE DE SAÚDE A PARTIR DO CHECK-IN
+    ====================================================== */
+
+    function calcHealthScore() {
+
+        let delta =
+            0
+
+
+        const sonoPontos = {
+
+            'Péssimo': -6,
+
+            'Regular': -1,
+
+            'Bom': 3,
+
+            'Ótimo': 5
+
+        }
+
+        delta +=
+            sonoPontos[
+                answers.sono
+            ] ||
+            0
+
+
+        // duração do sono
+        const horas =
+            answers.horasSono
+
+        if (typeof horas === 'number') {
+
+            if (horas >= 7 && horas <= 9) {
+                delta += 3
+            } else if (horas < 5) {
+                delta -= 4
+            } else if (horas < 7) {
+                delta -= 1
+            } else {
+                delta -= 1
+            }
+
+        }
+
+
+        delta -=
+            (
+                Number(
+                    answers.estresse
+                ) ||
+                3
+            ) -
+            3
+
+
+        const dietaPontos = {
+
+            'Segui bem minha dieta': 4,
+
+            'Alguns excessos': 0,
+
+            'Não me alimentei bem': -4
+
+        }
+
+        delta +=
+            dietaPontos[
+                answers.dieta
+            ] ||
+            0
+
+
+        const remedioPontos = {
+
+            'Sim, todos': 4,
+
+            'Esqueci um ou dois': -1,
+
+            'Não tomei hoje': -5
+
+        }
+
+        delta +=
+            remedioPontos[
+                answers.remedio
+            ] ||
+            0
+
+
+        if (
+            answers.passos !==
+                null &&
+            answers.passos >=
+                6000
+        ) {
+
+            delta +=
+                3
+
+        }
+
+
+        if (
+            answers.agua !==
+                null &&
+            answers.agua >=
+                6
+        ) {
+
+            delta +=
+                2
+
+        }
+
+
+        if (
+            answers.paSis &&
+            answers.paDia &&
+            (
+                answers.paSis >
+                    140 ||
+                answers.paDia >
+                    90
+            )
+        ) {
+
+            delta -=
+                3
+
+        }
+
+
+        if (
+            temDiabetes &&
+            answers.glicemia
+        ) {
+
+            if (
+                answers.glicemia >
+                    180 ||
+                answers.glicemia <
+                    70
+            ) {
+
+                delta -=
+                    4
+
+            }
+
+            else {
+
+                delta +=
+                    2
+
+            }
+
+        }
+
+
+        const novoScore =
+            Math.max(
+                0,
+                Math.min(
+                    100,
+                    healthScore +
+                        delta
+                )
+            )
+
+
+        return novoScore
+
+    }
+
+
+    /* =====================================================
+       CÁLCULO DE PONTOS DO CHECK-IN
+    ====================================================== */
+
+    function calcPointsEarned() {
+
+        let pts =
+            50
+
+
+        if (
+            answers.paSis &&
+            answers.paDia
+        ) {
+
+            pts +=
+                10
+
+        }
+
+
+        if (
+            temDiabetes &&
+            answers.glicemia
+        ) {
+
+            pts +=
+                10
+
+        }
+
+
+        return pts
 
     }
 
@@ -276,7 +554,10 @@
         const completed =
             required.filter(
                 key =>
-                    answers[key]
+                    answers[key] !==
+                        null &&
+                    answers[key] !==
+                        ''
             ).length
 
 
@@ -296,6 +577,48 @@
         submit.disabled =
             completed <
             required.length
+
+
+        updatePtsDisplay()
+
+    }
+
+
+    function updatePtsDisplay() {
+
+        const ganhos =
+            calcPointsEarned()
+
+
+        const kicker =
+            document.getElementById(
+                'ciPtsKicker'
+            )
+
+        const submitPts =
+            document.getElementById(
+                'ciSubmitPts'
+            )
+
+
+        if (kicker) {
+
+            kicker.textContent =
+                '+' +
+                ganhos +
+                ' pontos'
+
+        }
+
+
+        if (submitPts) {
+
+            submitPts.textContent =
+                '+' +
+                ganhos +
+                ' pts'
+
+        }
 
     }
 
@@ -430,20 +753,408 @@
        HORÁRIO
     ====================================================== */
 
-    const horaInput =
+    /* =====================================================
+       DURAÇÃO DO SONO
+       (total de horas OU intervalo dormi → acordei)
+    ====================================================== */
+
+    const sleepModeEl =
+        document.getElementById('sleepMode')
+
+    const sleepPanelHoras =
+        document.getElementById('sleepPanelHoras')
+
+    const sleepPanelIntervalo =
+        document.getElementById('sleepPanelIntervalo')
+
+    const sleepHorasValor =
+        document.getElementById('sleepHorasValor')
+
+    const sleepMenos =
+        document.getElementById('sleepMenos')
+
+    const sleepMais =
+        document.getElementById('sleepMais')
+
+    const dormiuInput =
+        document.getElementById('dormiuInput')
+
+    const acordouInput =
+        document.getElementById('acordouInput')
+
+    const sleepResult =
+        document.getElementById('sleepResult')
+
+    const sleepResultText =
+        document.getElementById('sleepResultText')
+
+
+    const SONO_MIN = 0
+    const SONO_MAX = 16
+    const SONO_PASSO = 0.5
+
+    // valor guardado no modo "total de horas"
+    let horasManuais = answers.horasSono
+
+
+    function formatarDuracao(horas) {
+
+        const totalMin = Math.round(horas * 60)
+        const h = Math.floor(totalMin / 60)
+        const m = totalMin % 60
+
+        if (m === 0) {
+            return h + 'h'
+        }
+
+        return h + 'h ' + String(m).padStart(2, '0') + 'min'
+
+    }
+
+
+    // diferença entre dois horários, atravessando a meia-noite
+    function calcularIntervalo(inicio, fim) {
+
+        if (!inicio || !fim) {
+            return null
+        }
+
+        const [h1, m1] = inicio.split(':').map(Number)
+        const [h2, m2] = fim.split(':').map(Number)
+
+        let minutos = (h2 * 60 + m2) - (h1 * 60 + m1)
+
+        if (minutos <= 0) {
+            minutos += 24 * 60
+        }
+
+        return minutos / 60
+
+    }
+
+
+    function classificarSono(horas) {
+
+        if (horas < 5) return { txt: 'bem abaixo do recomendado', nivel: 'ruim' }
+        if (horas < 7) return { txt: 'abaixo do recomendado (7–9h)', nivel: 'atencao' }
+        if (horas <= 9) return { txt: 'dentro do recomendado', nivel: 'bom' }
+        return { txt: 'acima do recomendado (7–9h)', nivel: 'atencao' }
+
+    }
+
+
+    function atualizarSono() {
+
+        let horas
+
+        if (answers.sonoModo === 'intervalo') {
+
+            horas = calcularIntervalo(answers.dormiu, answers.acordou)
+
+        } else {
+
+            horas = horasManuais
+
+        }
+
+        answers.horasSono = horas
+
+
+        if (sleepHorasValor) {
+            sleepHorasValor.textContent = formatarDuracao(horasManuais)
+        }
+
+        if (sleepMenos) sleepMenos.disabled = horasManuais <= SONO_MIN
+        if (sleepMais) sleepMais.disabled = horasManuais >= SONO_MAX
+
+
+        if (sleepResult && sleepResultText) {
+
+            if (horas === null) {
+
+                sleepResult.dataset.nivel = 'atencao'
+                sleepResultText.textContent = 'Informe os dois horários'
+
+            } else {
+
+                const c = classificarSono(horas)
+
+                sleepResult.dataset.nivel = c.nivel
+
+                sleepResultText.textContent =
+                    answers.sonoModo === 'intervalo'
+                        ? 'Você dormiu ' + formatarDuracao(horas) + ' · ' + c.txt
+                        : formatarDuracao(horas) + ' de sono · ' + c.txt
+
+            }
+
+        }
+
+    }
+
+
+    if (sleepModeEl) {
+
+        sleepModeEl.addEventListener('click', event => {
+
+            const button = event.target.closest('.sleep-mode-btn')
+
+            if (!button) return
+
+            sleepModeEl
+                .querySelectorAll('.sleep-mode-btn')
+                .forEach(b => b.setAttribute('aria-pressed', 'false'))
+
+            button.setAttribute('aria-pressed', 'true')
+
+            answers.sonoModo = button.dataset.mode
+
+            if (sleepPanelHoras) sleepPanelHoras.hidden = answers.sonoModo !== 'horas'
+            if (sleepPanelIntervalo) sleepPanelIntervalo.hidden = answers.sonoModo !== 'intervalo'
+
+            atualizarSono()
+
+        })
+
+    }
+
+
+    if (sleepMenos) {
+
+        sleepMenos.addEventListener('click', () => {
+            horasManuais = Math.max(SONO_MIN, horasManuais - SONO_PASSO)
+            atualizarSono()
+        })
+
+    }
+
+
+    if (sleepMais) {
+
+        sleepMais.addEventListener('click', () => {
+            horasManuais = Math.min(SONO_MAX, horasManuais + SONO_PASSO)
+            atualizarSono()
+        })
+
+    }
+
+
+    if (dormiuInput) {
+
+        dormiuInput.addEventListener('input', event => {
+            answers.dormiu = event.target.value
+            atualizarSono()
+        })
+
+    }
+
+
+    if (acordouInput) {
+
+        acordouInput.addEventListener('input', event => {
+            answers.acordou = event.target.value
+            atualizarSono()
+        })
+
+    }
+
+
+    atualizarSono()
+
+
+    /* =====================================================
+       PASSOS E ÁGUA
+    ====================================================== */
+
+    const passosInput =
         document.getElementById(
-            'horaInput'
+            'passosInput'
+        )
+
+    const aguaInput =
+        document.getElementById(
+            'aguaInput'
         )
 
 
-    if (horaInput) {
+    if (passosInput) {
 
-        horaInput.addEventListener(
+        passosInput.addEventListener(
             'input',
             event => {
 
-                answers.hora =
-                    event.target.value
+                answers.passos =
+                    event.target.value ?
+                        Number(
+                            event.target.value
+                        ) :
+                        null
+
+                updateProgress()
+
+            }
+        )
+
+    }
+
+
+    if (aguaInput) {
+
+        aguaInput.addEventListener(
+            'input',
+            event => {
+
+                answers.agua =
+                    event.target.value ?
+                        Number(
+                            event.target.value
+                        ) :
+                        null
+
+                updateProgress()
+
+            }
+        )
+
+    }
+
+
+    /* =====================================================
+       PRESSÃO ARTERIAL (OPCIONAL)
+    ====================================================== */
+
+    const paToggle =
+        document.getElementById(
+            'paToggle'
+        )
+
+    const paFields =
+        document.getElementById(
+            'paFields'
+        )
+
+    const paSisInput =
+        document.getElementById(
+            'paSisInput'
+        )
+
+    const paDiaInput =
+        document.getElementById(
+            'paDiaInput'
+        )
+
+
+    if (paToggle) {
+
+        paToggle.addEventListener(
+            'change',
+            event => {
+
+                paFields.hidden =
+                    !event.target.checked
+
+                if (
+                    !event.target.checked
+                ) {
+
+                    answers.paSis =
+                        null
+
+                    answers.paDia =
+                        null
+
+                    paSisInput.value =
+                        ''
+
+                    paDiaInput.value =
+                        ''
+
+                }
+
+            }
+        )
+
+    }
+
+
+    if (paSisInput) {
+
+        paSisInput.addEventListener(
+            'input',
+            event => {
+
+                answers.paSis =
+                    event.target.value ?
+                        Number(
+                            event.target.value
+                        ) :
+                        null
+
+            }
+        )
+
+    }
+
+
+    if (paDiaInput) {
+
+        paDiaInput.addEventListener(
+            'input',
+            event => {
+
+                answers.paDia =
+                    event.target.value ?
+                        Number(
+                            event.target.value
+                        ) :
+                        null
+
+            }
+        )
+
+    }
+
+
+    /* =====================================================
+       GLICEMIA (SOMENTE QUEM TEM DIABETES)
+    ====================================================== */
+
+    const glicemiaQuestion =
+        document.getElementById(
+            'glicemiaQuestion'
+        )
+
+    const glicemiaInput =
+        document.getElementById(
+            'glicemiaInput'
+        )
+
+
+    if (
+        glicemiaQuestion &&
+        temDiabetes
+    ) {
+
+        glicemiaQuestion.hidden =
+            false
+
+    }
+
+
+    if (glicemiaInput) {
+
+        glicemiaInput.addEventListener(
+            'input',
+            event => {
+
+                answers.glicemia =
+                    event.target.value ?
+                        Number(
+                            event.target.value
+                        ) :
+                        null
+
+                updateProgress()
 
             }
         )
@@ -566,14 +1277,43 @@
                 )
         ) {
 
+            const ganhos =
+                calcPointsEarned()
+
+
             animatePoints(
                 points,
-                points + 50
+                points + ganhos
             )
 
 
             points +=
-                50
+                ganhos
+
+
+            healthScore =
+                calcHealthScore()
+
+
+            animateScore(
+                healthScore
+            )
+
+
+            const successPts =
+                document.getElementById(
+                    'ciSuccessPts'
+                )
+
+
+            if (successPts) {
+
+                successPts.textContent =
+                    '+' +
+                    ganhos +
+                    ' pontos'
+
+            }
 
         }
 
@@ -631,7 +1371,10 @@
                         answers,
 
                     points:
-                        points
+                        points,
+
+                    healthScore:
+                        healthScore
 
                 })
 
@@ -671,6 +1414,11 @@
                 points =
                     saved.points ||
                     1300
+
+
+                healthScore =
+                    saved.healthScore ||
+                    healthScore
 
 
                 ptsNum.textContent =
@@ -789,9 +1537,9 @@
 
     updateDate()
 
-    animateScore()
-
     restoreState()
+
+    animateScore()
 
     updateProgress()
 

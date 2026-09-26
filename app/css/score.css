@@ -2327,6 +2327,142 @@ body {
 }
 
 
+/* CAMPOS NUMÉRICOS (passos, água, pressão, glicemia) */
+
+.number-field {
+
+    padding:
+        0.8rem
+        1rem;
+
+    border:
+        1px
+        solid
+        var(--glass-border);
+
+    border-radius:
+        13px;
+
+    background:
+        var(--glass);
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        space-between;
+
+    margin-bottom:
+        0.6rem;
+
+}
+
+
+.number-field span {
+
+    color:
+        var(--text-faint);
+
+    font-size:
+        0.72rem;
+
+}
+
+
+.number-field input {
+
+    border:
+        none;
+
+    outline:
+        none;
+
+    background:
+        transparent;
+
+    color:
+        var(--text-main);
+
+    font-family:
+        inherit;
+
+    text-align:
+        right;
+
+    width:
+        45%;
+
+}
+
+
+/* TOGGLE OPCIONAL (pressão arterial) */
+
+.optional-toggle {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        0.6rem;
+
+    font-size:
+        0.85rem;
+
+    color:
+        var(--text-faint);
+
+    cursor:
+        pointer;
+
+    margin-bottom:
+        0.6rem;
+
+}
+
+
+.optional-toggle input {
+
+    width:
+        18px;
+
+    height:
+        18px;
+
+    accent-color:
+        #17a374;
+
+}
+
+
+.pa-fields {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        1fr
+        1fr;
+
+    gap:
+        0.6rem;
+
+}
+
+
+.pa-fields .number-field {
+
+    margin-bottom:
+        0;
+
+}
+
+
 /* FOOTER MODAL */
 
 .checkin-footer {
@@ -2939,4 +3075,141 @@ body {
     outline-offset:
         3px;
 
+}
+
+/* =====================================================
+   DURAÇÃO DO SONO
+===================================================== */
+
+.sleep-mode {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4rem;
+    padding: 0.3rem;
+    margin-bottom: 0.7rem;
+    border: 1px solid var(--glass-border);
+    border-radius: 14px;
+    background: var(--glass);
+}
+
+.sleep-mode-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    min-height: 38px;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--text-faint);
+    font-family: inherit;
+    font-size: 0.74rem;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.sleep-mode-btn[aria-pressed="true"] {
+    background: linear-gradient(135deg, #3fe0a5, #17a374);
+    color: #04231a;
+    font-weight: 600;
+}
+
+.sleep-panel[hidden] {
+    display: none;
+}
+
+.sleep-stepper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.8rem;
+    padding: 0.6rem;
+    border: 1px solid var(--glass-border);
+    border-radius: 13px;
+    background: var(--glass);
+}
+
+.stepper-btn {
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--accent-border);
+    border-radius: 12px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.stepper-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.stepper-value {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1.15;
+}
+
+.stepper-value strong {
+    color: var(--text-main);
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.stepper-value small {
+    color: var(--text-faint);
+    font-size: 0.7rem;
+}
+
+.sleep-range {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.55rem;
+}
+
+.sleep-range .time-field {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3rem;
+    cursor: pointer;
+}
+
+.sleep-range .time-field span {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.sleep-range .time-field input {
+    width: 100%;
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+
+.sleep-result {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 0.6rem 0 0;
+    font-size: 0.76rem;
+    color: var(--accent);
+}
+
+.sleep-result[data-nivel="atencao"] {
+    color: var(--warning, #e6b45f);
+}
+
+.sleep-result[data-nivel="ruim"] {
+    color: #ff8a7a;
+}
+
+@media (max-width: 380px) {
+    .sleep-range {
+        grid-template-columns: 1fr;
+    }
 }

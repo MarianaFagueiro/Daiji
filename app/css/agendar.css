@@ -2394,3 +2394,304 @@ body {
     }
 
 }
+
+/* =====================================================
+   SELETOR: ESPECIALIDADE OU MÉDICO
+===================================================== */
+
+.picker-card {
+    margin-bottom: 1.8rem;
+    scroll-margin-top: 1rem;
+}
+
+.picker-card[hidden],
+.doctor-card[hidden],
+.picker-pane[hidden],
+#specDoctorsWrap[hidden],
+.picker-close[hidden] {
+    display: none;
+}
+
+.picker-close {
+    border: none;
+    background: transparent;
+    color: var(--text-faint);
+    font-family: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+    padding: 0.3rem 0.5rem;
+}
+
+.picker-close:hover {
+    color: var(--text-main);
+}
+
+.picker-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4rem;
+    padding: 0.3rem;
+    margin-bottom: 1.2rem;
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    background: rgba(0, 0, 0, 0.12);
+}
+
+.picker-tab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    min-height: 42px;
+    border: none;
+    border-radius: 12px;
+    background: transparent;
+    color: var(--text-faint);
+    font-family: inherit;
+    font-size: 0.84rem;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.picker-tab[aria-selected="true"] {
+    background: linear-gradient(135deg, #3fe0a5, #17a374);
+    color: #04231a;
+    font-weight: 600;
+}
+
+.picker-step {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0 0 0.75rem;
+    color: var(--text-soft);
+    font-size: 0.82rem;
+    font-weight: 500;
+}
+
+.picker-step span {
+    width: 22px;
+    height: 22px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 0.72rem;
+    font-weight: 600;
+}
+
+#specDoctorsWrap {
+    margin-top: 1.3rem;
+}
+
+.spec-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.6rem;
+}
+
+.spec-chip {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+    padding: 0.8rem 0.85rem;
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    background: var(--glass);
+    color: var(--text-soft);
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.spec-chip i {
+    color: var(--accent);
+    font-size: 1.1rem;
+    margin-bottom: 0.15rem;
+}
+
+.spec-chip span {
+    color: var(--text-main);
+    font-size: 0.82rem;
+    font-weight: 500;
+}
+
+.spec-chip small {
+    color: var(--text-faint);
+    font-size: 0.68rem;
+}
+
+.spec-chip:hover {
+    background: var(--glass-hover);
+}
+
+.spec-chip[aria-pressed="true"] {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+}
+
+.picker-search {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.7rem 1rem;
+    margin-bottom: 0.9rem;
+    border: 1px solid var(--glass-border);
+    border-radius: 14px;
+    background: var(--glass);
+    color: var(--text-faint);
+}
+
+.picker-search input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--text-main);
+    font-family: inherit;
+    font-size: 0.86rem;
+}
+
+.picker-search input::placeholder {
+    color: var(--text-faint);
+}
+
+.picker-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    max-height: 420px;
+    overflow-y: auto;
+    padding-right: 0.2rem;
+}
+
+.pick-doctor {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    width: 100%;
+    padding: 0.75rem 0.9rem;
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    background: var(--glass);
+    color: inherit;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.pick-doctor:hover {
+    background: var(--glass-hover);
+    border-color: rgba(53, 211, 153, 0.35);
+}
+
+.pick-doctor[aria-pressed="true"] {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+}
+
+.pick-avatar {
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    display: grid;
+    place-items: center;
+    border-radius: 14px;
+    background: rgba(53, 211, 153, 0.14);
+    border: 1px solid rgba(53, 211, 153, 0.24);
+    color: var(--accent);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.pick-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.pick-info strong {
+    color: var(--text-main);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.pick-info small {
+    color: var(--text-faint);
+    font-size: 0.74rem;
+}
+
+.pick-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.15rem;
+    color: var(--text-faint);
+    font-size: 0.72rem;
+}
+
+.pick-meta .bi-star-fill {
+    color: var(--star);
+}
+
+.pick-arrow {
+    color: var(--text-faint);
+}
+
+.picker-empty {
+    margin: 0;
+    padding: 1.2rem;
+    text-align: center;
+    color: var(--text-faint);
+    font-size: 0.85rem;
+}
+
+/* avatar do médico escolhido com iniciais */
+.doctor-card.has-initials .doctor-avatar {
+    font-size: 1.35rem;
+    font-weight: 600;
+}
+
+.change-doctor {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.75rem;
+    border: 1px solid rgba(53, 211, 153, 0.3);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--accent);
+    font-family: inherit;
+    font-size: 0.75rem;
+    cursor: pointer;
+}
+
+.change-doctor:hover {
+    background: var(--accent-soft);
+}
+
+/* agenda bloqueada até escolher o profissional */
+.main-column.is-locked {
+    opacity: 0.4;
+    pointer-events: none;
+    filter: saturate(0.6);
+}
+
+@media (max-width: 900px) {
+    .spec-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 370px) {
+    .picker-tab {
+        font-size: 0.76rem;
+    }
+}

@@ -1238,3 +1238,11 @@ body {
     opacity: 1;
     transform: scale(1);
 }
+
+/* dica auxiliar abaixo de um campo/toggle */
+.field-hint {
+    margin-top: 8px;
+    font-size: 0.78rem;
+    color: var(--text-faint, #9aa5a1);
+    line-height: 1.4;
+}
